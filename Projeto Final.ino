@@ -1,8 +1,53 @@
 // Incluir Bibliotecas a usar ao longo do Programa:
 #include <Servo.h> // Biblioteca do Servo Motor
 
+// Definição de Pinos a usar ao longo do Progama:
+// -> Pinos dos Servo Motores:
+#define pin_servo_patch 9
+#define pin_servo_color 10
+#define pin_servo_down 11
+#define pin_servo_up 12
+
+// -> Pinos dos Sensor RGB:
+#define S0 2
+#define S1 3
+#define S2 4
+#define S3 5
+#define sensor_output 6
+
+// Definição de variáveis auxiliares a usar ao longo do Programa:
+// -> Definição das cores:
+#define RED 0
+#define ORANGE 1
+#define YELLOW 2
+#define BLUE 3
+#define BROWN 4
+#define GREEN 5
+#define UNKNOWN 6
+
+int cont = 0; // Contador de 'Pintarolas' "wanted", ou seja, as escolhidas pelo Cliente.
+int wanted; // Quantidade de 'Pintarolas' que o Cliente pretende.
+int color_wanted; // Cor que o Cliente pretende.
+
+int color_no_wanted = 0; // Contador de 'Pintarolas' "no wanted", ou seja, não vão ao encontro do que o Cliente pediu.
+int lim_no_wanted; // Limite de Pintarolas no copo "no wanted".
+
+int NO_WANTED = 0; // Estado que está na posição das 'Pintarolas' que o Cliente não quer.
+int WANTED = 1; // Estado que está na posição das 'Pintarolas' que o Cliente quer.
+int LAST_POS=NO_WANTED; // Última posição do Servo Motor (Servo_patch).
+
+//int red_freq,green_freq, blue_freq;
+
+int ang_descida_pintalora,ang_sensor,ang_patch;
+
+int ang_patch_wanted;
+int ang_patch_no_wanted;
+
+int ang_default_up;
+int ang_default_down;
+
 // Criação de objetos do tipo Servo, para, assim, podermos, controlar os Servo Motores a utilizar ao longo do Projeto:
-Servo Servo_path; 
+Servo Servo_patch; 
 /* Servo Motor reponsável pela função "Path_Selection".
    Este Servo Motor vai ser responsável por orientar as 'Pintarolas' para o copo, cujas caraterísticas correspondam às pretendidas pelo cliente, 
   ou para o outro copo, cujas 'Pintarolas' não vão ao encontro daquilo que o Cliente solicitou.
@@ -20,52 +65,10 @@ Servo Servo_down;
 */
 
 Servo Servo_up; //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
-/*
+/* Servo Motor responsável em parte pela função "Go_Bacl_to_the_Top".
+   Este Servo Motor vai ser resposável por rodar o copo, permitindo, desta forma, que quando o braço robótico chegue ao topo, as 'Pintarolas' sejam,
+  simplesmente, despejadas para o recepiente inicial.
 */
-
-
-//define pins
-
-#define S0 2
-#define S1 3
-#define S2 4
-#define S3 5
-#define sensor_output 6
-#define pin_servo_patch 9
-#define pin_servo_color 10
-#define pin_servo_down 11
-#define pin_servo_up 12
-
-
-//int red_freq,green_freq, blue_freq;
-
-int ang_descida_pintalora,ang_sensor,ang_patch;
-
-int ang_patch_wanted;
-int ang_patch_no_wanted;
-
-int ang_default_up;
-int ang_default_down;
-
-//define colors
-
-#define RED 0
-#define ORANGE 1
-#define YELLOW 2
-#define BLUE 3
-#define BROWN 4
-#define GREEN 5
-#define UNKNOWN 6
-
-int cont=0; // contador pintarolas wanted
-int wanted; //quantidade de pintarolas que o utilizador quer
-int color_wanted; //cor que o utilizador quer
-int cont_no_wanted=0; //contador de pintarolas no wanted
-int lim_no_wanted; //limite de pintarolas no recipiente no wanted
-
-int NO_WANTED=0; //estado na posição das pintarolas que o utilizador não quer
-int WANTED=1; //estado na posição das pintarolas que o utilizador não quer
-int LAST_POS=NO_WANTED; //última pisição do Servo_patch
 
 //................FUNCTIONS...................................
 
