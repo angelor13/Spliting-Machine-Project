@@ -14,12 +14,14 @@ Servo Servo_color;
   Na verdade, este Servo Motor, permite que o sensor leia uma e só uma 'Pintarola' de cada vez.
 */
 
-Servo Servo_down; //servo motor que faz parte exclusivamente do go back to top, que roda o braço e eleva o pote
+Servo Servo_down; 
 /* Servo Motor responsável em parte pela função "Go_Back_to_the_Top".
-   Este Servo Motor vai ser reponsável por rodar o braço robótico, permitindo, desta forma, a elevação do copo, cujas '
-
+   Este Servo Motor vai ser reponsável por rodar o braço robótico, permitindo, desta forma, a elevação do copo, cujas 'Pintarolas' não são as desejadas.
 */
+
 Servo Servo_up; //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
+/*
+*/
 
 
 //define pins
