@@ -2,20 +2,24 @@
 #include <Servo.h> // Biblioteca do Servo Motor
 
 // Criação de objetos do tipo Servo, para, assim, podermos, controlar os Servo Motores a utilizar ao longo do Projeto:
-Servo Servo_Path; 
+Servo Servo_path; 
 /* Servo Motor reponsável pela função "Path_Selection".
    Este Servo Motor vai ser responsável por orientar as 'Pintarolas' para o copo, cujas caraterísticas correspondam às pretendidas pelo cliente, 
   ou para o outro copo, cujas 'Pintarolas' não vão ao encontro daquilo que o Cliente solicitou.
 */
 
-Servo Servo_Color; 
+Servo Servo_color; 
 /* Servo Motor auxiliar à função "Color_Detection".
   Este Servo Motor vai ser responsável por controlar as 'Pintarolas' que entram na zona destinada à leitura de cor por parte do Sensor RGB. 
   Na verdade, este Servo Motor, permite que o sensor leia uma e só uma 'Pintarola' de cada vez.
 */
 
-Servo Servo_Down; //servo motor que faz parte exclusivamente do go back to top, que roda o braço e eleva o pote
-Servo Servo_Up; //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
+Servo Servo_down; //servo motor que faz parte exclusivamente do go back to top, que roda o braço e eleva o pote
+/* Servo Motor responsável em parte pela função "Go_Back_to_the_Top".
+   Este Servo Motor vai ser reponsável por rodar o braço robótico, permitindo, desta forma, a elevação do copo, cujas '
+
+*/
+Servo Servo_up; //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
 
 
 //define pins
