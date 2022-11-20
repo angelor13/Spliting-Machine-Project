@@ -1,44 +1,104 @@
-// Incluir Bibliotecas a usar ao longo do Programa:
-#include <Servo.h> // Biblioteca do Servo Motor
+#include <Servo.h>
+#include <LiquidCrystal_I2C.h>
 
-// Definição de Pinos a usar ao longo do Progama:
-// -> Pinos dos Servo Motores:
-#define pin_servo_patch 9
-#define pin_servo_color 10
-#define pin_servo_down 11
-#define pin_servo_up 12
+#define endereco 0x27 //endereço do arduino usado para escrever no lcd no i2c
 
-// -> Pinos dos Sensor RGB:
+LiquidCrystal_I2C lcd=LiquidCrystal_I2C(endereco,16,2); //criar um objeto que será o lcd
+
+Servo Servo_patch; //servo motor que escolhe os potes
+Servo Servo_color; //sevo motor que move a pintarola desde a sua descida, que leva ao sensor e depois deixa para o patch
+Servo Servo_down;  //servo motor que faz parte exclusivamente do go back to top, que roda o braço e eleva o pote
+Servo Servo_up;  //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
+
+//bytes que o lcd vai escrever 
+
+byte char_0_esquerda[] = {
+    B11111,
+    B10000,
+    B10000,
+    B10000,
+    B10000,
+    B10000,
+    B10000,
+    B11111
+    };
+
+  byte char_1_esquerda[] = {
+    B11111,
+    B10000,
+    B10110,
+    B10110,
+    B10110,
+    B10110,
+    B10000,
+    B11111
+    };
+  
+  byte char_0_centro[] = {
+    B11111,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B11111
+    };
+  
+  byte char_1_centro[] = {
+    B11111,
+    B00000,
+    B01110,
+    B01110,
+    B01110,
+    B01110,
+    B00000,
+    B11111
+    };
+
+  byte char_0_direita[] = {
+    B11111,
+    B00001,
+    B00001,
+    B00001,
+    B00001,
+    B00001,
+    B00001,
+    B11111
+    };
+  
+  byte char_1_direita[] = {
+    B11111,
+    B00001,
+    B01101,
+    B01101,
+    B01101,
+    B01101,
+    B00001,
+    B11111
+    };
+
+
+
+//define pins
+
+// sensor pins
 #define S0 2
 #define S1 3
 #define S2 4
 #define S3 5
 #define sensor_output 6
 
-// Definição de variáveis auxiliares a usar ao longo do Programa:
-// -> Definição das cores:
-#define RED 0
-#define ORANGE 1
-#define YELLOW 2
-#define BLUE 3
-#define BROWN 4
-#define GREEN 5
-#define UNKNOWN 6
+//servo motors pins
+#define pin_servo_patch 9
+#define pin_servo_color 10
+#define pin_servo_down 11
+#define pin_servo_up 12
 
-int cont = 0; // Contador de 'Pintarolas' "wanted", ou seja, as escolhidas pelo Cliente.
-int wanted; // Quantidade de 'Pintarolas' que o Cliente pretende.
-int color_wanted; // Cor que o Cliente pretende.
-
-int color_no_wanted = 0; // Contador de 'Pintarolas' "no wanted", ou seja, não vão ao encontro do que o Cliente pediu.
-int lim_no_wanted; // Limite de Pintarolas no copo "no wanted".
-
-int NO_WANTED = 0; // Estado que está na posição das 'Pintarolas' que o Cliente não quer.
-int WANTED = 1; // Estado que está na posição das 'Pintarolas' que o Cliente quer.
-int LAST_POS=NO_WANTED; // Última posição do Servo Motor (Servo_patch).
 
 //int red_freq,green_freq, blue_freq;
 
-int ang_descida_pintalora,ang_sensor,ang_patch;
+int ang_descida_pintarola,ang_sensor,ang_patch;
 
 int ang_patch_wanted;
 int ang_patch_no_wanted;
@@ -46,34 +106,37 @@ int ang_patch_no_wanted;
 int ang_default_up;
 int ang_default_down;
 
-// Criação de objetos do tipo Servo, para, assim, podermos, controlar os Servo Motores a utilizar ao longo do Projeto:
-Servo Servo_patch; 
-/* Servo Motor reponsável pela função "Path_Selection".
-   Este Servo Motor vai ser responsável por orientar as 'Pintarolas' para o copo, cujas caraterísticas correspondam às pretendidas pelo cliente, 
-  ou para o outro copo, cujas 'Pintarolas' não vão ao encontro daquilo que o Cliente solicitou.
-*/
+//define colors
 
-Servo Servo_color; 
-/* Servo Motor auxiliar à função "Color_Detection".
-  Este Servo Motor vai ser responsável por controlar as 'Pintarolas' que entram na zona destinada à leitura de cor por parte do Sensor RGB. 
-  Na verdade, este Servo Motor, permite que o sensor leia uma e só uma 'Pintarola' de cada vez.
-*/
+#define RED 'R'
+#define ORANGE 'O'
+#define YELLOW 'Y'
+#define BLUE 'B'
+#define BROWN 'C'
+#define GREEN 'G'
+#define UNKNOWN 'U'
 
-Servo Servo_down; 
-/* Servo Motor responsável em parte pela função "Go_Back_to_the_Top".
-   Este Servo Motor vai ser reponsável por rodar o braço robótico, permitindo, desta forma, a elevação do copo, cujas 'Pintarolas' não são as desejadas.
-*/
+int cont=0; // contador pintarolas wanted
+int wanted; //quantidade de pintarolas que o utilizador quer
+char color_wanted; //cor que o utilizador quer
+int cont_no_wanted=0; //contador de pintarolas no wanted
+int lim_no_wanted; //limite de pintarolas no recipiente no wanted
+int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no caso acontecerá quando não houver pintaroras no "depósito" superior
 
-Servo Servo_up; 
-/* Servo Motor responsável em parte pela função "Go_Bacl_to_the_Top".
-   Este Servo Motor vai ser resposável por rodar o copo, permitindo, desta forma, que quando o braço robótico chegue ao topo, as 'Pintarolas' sejam,
-  simplesmente, despejadas para o recepiente inicial.
-*/
+//power states of the machine
+char OFF='F';
+char ON='N';
+char MACHINE_MODE=OFF;
+
+char read; //cor lida pelo sensor
+int NO_WANTED=0; //estado na posição das pintarolas que o utilizador não quer
+int WANTED=1; //estado na posição das pintarolas que o utilizador não quer
+int LAST_POS=NO_WANTED; //última pisição do Servo_patch
 
 //................FUNCTIONS...................................
 
-// Função que faz a média dos valores lidos pelo sensor RGB de forma a diminuir os erros de leitura:
-int media(int tab[10]){ 
+
+int media(int tab[10]){ //função para calcular a media das leituras do sensor para minimizar erros de leitura
   int soma=0;
   for(int i=0;i<10;i++){
     soma+=tab[i];
@@ -82,7 +145,7 @@ int media(int tab[10]){
 }
 
 
-int color_return(){  //função que retorna a cor lida pelo sensor (color detection)
+char color_return(){  //função que retorna a cor lida pelo sensor (color detection)
 
   //filtro red
   int green_tab[10],red_tab[10],blue_tab[10];
@@ -168,16 +231,30 @@ int color_return(){  //função que retorna a cor lida pelo sensor (color detect
 
 void setup() {
   
+  lcd.init(); //inicialização do lcd
+
   Serial.begin(9600);
+
   Servo_patch.attach(pin_servo_patch);
   Servo_color.attach(pin_servo_color);
   Servo_down.attach(pin_servo_down);
   Servo_up.attach(pin_servo_up);
+  
   pinMode(S0,OUTPUT);
   pinMode(S1,OUTPUT);
   pinMode(S2,OUTPUT);
   pinMode(S3,OUTPUT);
   pinMode(sensor_output,INPUT);
+
+  //criar bytes para o lcd escrever e fazer a barra de loading
+
+  lcd.createChar( 0, char_0_esquerda);
+  lcd.createChar( 1, char_1_esquerda);
+  lcd.createChar( 2, char_0_centro);
+  lcd.createChar( 3, char_1_centro);
+  lcd.createChar( 4, char_0_direita);
+  lcd.createChar( 5, char_1_direita);
+  
   //escalar a freq para 20%
   digitalWrite(S0,HIGH);
   digitalWrite(S1,LOW);
@@ -191,14 +268,23 @@ void setup() {
 }
 
 void loop() {
-cont=0;
 
-  if(cont_no_wanted==lim_no_wanted){
-    cont_no_wanted=0;
-    //chamar função que leva para  cima (go up)
-  }
+if(MACHINE_MODE==OFF){
 
-while(cont<wanted){
+//desligar leds e lcd
+
+}
+else{
+cont=-1;
+
+  //if(cont_no_wanted==lim_no_wanted){
+    //cont_no_wanted=0;
+    //chamar função que leva para cima (go up) -> e unica a ser descomentada /////
+  //}
+
+  //esperar pela interação dda aplicação e depois fazer cont=0
+    
+while(cont<wanted && cont!=-1){
   //servo na posição inicial onde recebe as pintarolas 
   delay(300);
   for(int i=ang_descida_pintarola;i<ang_sensor;i++){
@@ -210,13 +296,52 @@ while(cont<wanted){
     //.....................PATCH SELECTION................
     
   //posição da leitura do sensor
-  if(color_wanted==color_return()){ //se a cor lida for a pretendida pelo utilizador
+
+  read=color_return(); //lê cor
+  
+ 
+  if(read==UNKNOWN){ // se a cor lida pelo sensor for unknown, ou seja, não houver pintarolas disponiveis no "depósito"
+   
+        while(read==UNKNOWN){
+           cont_unknown++;
+
+          if(cont_unknown<2){
+
+            //print que detetou cor desconhecida ou nao recolheu pintarola
+            delay(1000);
+          }
+          else{
+
+            //print no lcd que nao ha pintarolas no deposito inicial
+
+            delay(2000);
+          }
+
+          Servo_color.write(ang_descida_pintarola); //volta para a posição onde recebe pintarolas
+          delay(300);
+          for(int i=ang_descida_pintarola;i<ang_sensor;i++){ //vai verificar ao sensor
+            Servo_color.write(i);
+            delay(10);
+          }
+
+
+          read=color_return(); //relê a cor 
+          delay(50);
+        }
+        cont_unknown=0;
+        delay(200);
+      
+  }
+
+  else if(color_wanted==read){ //se a cor lida for a pretendida pelo utilizador
     if(LAST_POS==NO_WANTED){
       Servo_patch.write(ang_patch_wanted);
     }
     LAST_POS=WANTED;
     cont++;
   }
+
+
   else{  // se a cor lida não for a requerida pelo utilizador
     if(LAST_POS==WANTED){
       Servo_patch.write(ang_patch_no_wanted);
@@ -225,7 +350,7 @@ while(cont<wanted){
     cont_no_wanted++;
   }
 
-  delay(300);
+  delay(500);
 
   //posição no buraco onde a pintarola cai para o patch
   for(int i=ang_sensor;i<ang_patch;i++){
@@ -247,5 +372,5 @@ while(cont<wanted){
   }
 
 }
-
+}
 }
