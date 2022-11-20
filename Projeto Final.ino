@@ -108,13 +108,13 @@ int ang_default_down;
 
 //define colors
 
-#define RED 'R'
-#define ORANGE 'O'
-#define YELLOW 'Y'
-#define BLUE 'B'
-#define BROWN 'C'
-#define GREEN 'G'
-#define UNKNOWN 'U'
+char RED = 'R';
+char ORANGE ='O';
+char YELLOW = 'Y';
+char BLUE = 'B';
+char BROWN = 'C';
+char GREEN = 'G';
+char UNKNOWN = 'U';
 
 int cont=0; // contador pintarolas wanted
 int wanted; //quantidade de pintarolas que o utilizador quer
@@ -127,6 +127,7 @@ int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no 
 char OFF='F';
 char ON='N';
 char MACHINE_MODE=OFF;
+char receive
 
 char read; //cor lida pelo sensor
 int NO_WANTED=0; //estado na posição das pintarolas que o utilizador não quer
