@@ -64,7 +64,7 @@ Servo Servo_down;
    Este Servo Motor vai ser reponsável por rodar o braço robótico, permitindo, desta forma, a elevação do copo, cujas 'Pintarolas' não são as desejadas.
 */
 
-Servo Servo_up; //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
+Servo Servo_up; 
 /* Servo Motor responsável em parte pela função "Go_Bacl_to_the_Top".
    Este Servo Motor vai ser resposável por rodar o copo, permitindo, desta forma, que quando o braço robótico chegue ao topo, as 'Pintarolas' sejam,
   simplesmente, despejadas para o recepiente inicial.
@@ -72,8 +72,8 @@ Servo Servo_up; //servo motor que faz parte exclusivamente do go back to top, qu
 
 //................FUNCTIONS...................................
 
-
-int media(int tab[10]){ //função para calcular a media das leituras do sensor para minimizar erros de leitura
+// Função que faz a média dos valores lidos pelo sensor RGB de forma a diminuir os erros de leitura:
+int media(int tab[10]){ 
   int soma=0;
   for(int i=0;i<10;i++){
     soma+=tab[i];
