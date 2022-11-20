@@ -127,7 +127,8 @@ int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no 
 char OFF='F';
 char ON='N';
 char MACHINE_MODE=OFF;
-char receive
+
+char received; // char recebido pelo programa vindo da app
 
 char read; //cor lida pelo sensor
 int NO_WANTED=0; //estado na posição das pintarolas que o utilizador não quer
@@ -229,6 +230,11 @@ char color_return(){  //função que retorna a cor lida pelo sensor (color detec
 
 }
 
+//função go up, responsavel por levar as pintarolas no wanted devolta para o deposito inicial
+
+void go_up(){
+
+}
 
 void setup() {
   
