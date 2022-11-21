@@ -401,7 +401,7 @@ delay(100);
 }
 
 else{
-lcd.Backlight(); //liga luz de fundo do lcd
+lcd.backlight(); //liga luz de fundo do lcd
 cont=-1;
 
 if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
