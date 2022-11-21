@@ -80,7 +80,7 @@ byte char_0_esquerda[] = {
 
 
 
-//define pins
+//DEFINE PINS
 
 //led pins(go up state)
 
@@ -280,14 +280,14 @@ void GO_UP(){
 
   delay(1000);
 
-  for (int i = 10; i < 80; i++) {
+  for (int i = 10; i < 110; i++) {
     Servo_up.write(i);
     delay(30);
   }
 
   delay(3000); //recoloca as pintarolas
 
-  for (int i = 68; i > 45; i--) {
+  for (int i = 110; i > 45; i--) {
     Servo_up.write(i);
     delay(30);
   }
@@ -461,7 +461,7 @@ while(cont<wanted && cont!=-1){
     Servo_color.write(i);
     delay(30);
   }
-  
+
   delay(100);
   
 
@@ -550,7 +550,9 @@ while(cont<wanted && cont!=-1){
 
   }
 
+  delay(300);
 }
+//print no lcd que acabou a tarefa
 delay(200);
 }
 }
