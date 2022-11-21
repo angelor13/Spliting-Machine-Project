@@ -388,12 +388,14 @@ lcd.noBacklight(); //apaga luz de fundo do lcd
 
 write_RGB(0,0,0); //apanga led RGB
 
+
 if(Serial.avalible()>0){ //se receber da app que e para ligar
   received=Serial.read();
-  if(received==OFF){
+  if(received==ON){
     switch_machine_state();
   }
 }
+
 delay(100);
 
 }
