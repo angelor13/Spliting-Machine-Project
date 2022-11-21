@@ -108,8 +108,8 @@ int ang_descida_pintarola,ang_sensor,ang_patch;
 int ang_patch_wanted;
 int ang_patch_no_wanted;
 
-int ang_default_up;
-int ang_default_down;
+int ang_default_up = 45;
+int ang_default_down = 0;
 
 //define colors
 
@@ -123,12 +123,12 @@ char UNKNOWN = 'U';
 
 //define array of RGB colors for Led RGB
 
-int colors[][3]={ {255,0,0},
-                  {40,0,255},
-                  {0,0,255},
-                  {0,255,0},
-                  {200,0,255},
-                  {4,0,255}
+int colors[][3]={ {255,0,0},    //green
+                  {40,0,255},   //orange
+                  {0,0,255},    //red
+                  {0,255,0},    //blue
+                  {200,0,255},  //yellow
+                  {4,0,255}     //brown
                   };
 
 
@@ -248,8 +248,49 @@ char color_return(){  //função que retorna a cor lida pelo sensor (color detec
 
 //função go up, responsavel por levar as pintarolas no wanted devolta para o deposito inicial
 
-void go_up(){
+void GO_UP(){
+  Servo_down.write(0);
+  Servo_up.write(45);
 
+  for (int i = 0; i < 40; i++) {
+    Servo_down.write(i);
+    delay(30);
+  }
+
+  delay(1500);
+
+  for (int i = 45; i > 10; i--) {
+    Servo_up.write(i);
+    delay(10);
+  }
+  delay(1500);
+
+  for (int i = 40; i < 68; i++) {
+    Servo_down.write(i);
+    delay(30);
+  }
+
+  delay(1000);
+
+  for (int i = 10; i < 80; i++) {
+    Servo_up.write(i);
+    delay(30);
+  }
+
+  delay(3000); //recoloca as pintarolas
+
+  for (int i = 68; i > 45; i--) {
+    Servo_up.write(i);
+    delay(30);
+  }
+
+  delay(2000);
+
+  for (int i = 68; i > 0; i--) {
+    Servo_down.write(i);
+    delay(30);
+  }
+  delay(1000);
 }
 
 //função responsavel pela troca de power states da maquina
@@ -308,9 +349,9 @@ void setup() {
   Servo_down.attach(pin_servo_down);
   Servo_up.attach(pin_servo_up);
 
-  pinMode(blue_pin,OUTPUT);
-  pinMode(red_pin,OUTPUT);
-  pinMode(green_pin,OUTPUT);
+  pinMode(blue_pin,OUTPUT);    //RGB led pin
+  pinMode(red_pin,OUTPUT);    //RGB led pin
+  pinMode(green_pin,OUTPUT); //RGB led pin
   
   pinMode(S0,OUTPUT);
   pinMode(S1,OUTPUT);
@@ -358,12 +399,13 @@ delay(100);
 }
 
 else{
+lcd.Backlight(); //liga luz de fundo do lcd
 cont=-1;
 
-//if(cont_no_wanted>0){
-    //cont_no_wanted=0;
-    //chamar função que leva para cima (go up) -> e unica a ser descomentada /////
-  //}
+if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
+    cont_no_wanted=0;
+    GO_UP();
+  }
 
   //esperar pela interação dda aplicação e depois fazer cont=0
     
@@ -376,7 +418,7 @@ while(cont<wanted && cont!=-1){
   delay(300);
   for(int i=ang_descida_pintarola;i<ang_sensor;i++){
     Servo_color.write(i);
-    delay(10);
+    delay(30);
   }
   
 
@@ -408,7 +450,7 @@ while(cont<wanted && cont!=-1){
           delay(300);
           for(int i=ang_descida_pintarola;i<ang_sensor;i++){ //vai verificar ao sensor
             Servo_color.write(i);
-            delay(10);
+            delay(30);
           }
 
           read=color_return(); //relê a cor 
@@ -442,20 +484,20 @@ while(cont<wanted && cont!=-1){
   //posição no buraco onde a pintarola cai para o patch
   for(int i=ang_sensor;i<ang_patch;i++){
     Servo_color.write(i);
-    delay(10);
+    delay(30);
   }
   delay(500);  //aqui a pintarola já cai no recipiente certo
    
-   //servo volta para onde recebe as pintarolas
+   //servo volta para onde recebe as pintarolas ja sem pintarolas
    for(int i=ang_patch;i>ang_descida_pintarola;i--){
     Servo_color.write(i);
-    delay(5);
+    delay(10);
   }
   delay(100);
 
-  if(cont_no_wanted==lim_no_wanted){
+  if(cont_no_wanted==lim_no_wanted){  //se o nº de pintarolas no recipiente no_wanted chegar ao lim_max vai "despejar" no recipiente inicial
     cont_no_wanted=0;
-    //chamar função que leva para cima (go up)
+    GO_UP();
   }
 
 }
