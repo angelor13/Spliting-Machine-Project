@@ -82,6 +82,16 @@ byte char_0_esquerda[] = {
 
 //define pins
 
+//led pins(go up state)
+
+#define red_up 4
+#define green_up 5
+
+//machine state led pins
+
+#define red_machine_state 30
+#define green_machine_state 31
+
 // sensor pins
 #define S0 2
 #define S1 3
@@ -198,11 +208,9 @@ char color_return(){  //função que retorna a cor lida pelo sensor (color detec
 
   }
 
-
   red=media(red_tab); //variavel que guarda valor media red lido pelo sensor
   blue=media(blue_tab); //variavel que guarda valor media blue lido pelo sensor
   green=media(green_tab); //variavel que guarda valor media green lido pelo sensor
-
 
   //Serial.print("green->  ");
   //Serial.print(green);
@@ -352,6 +360,12 @@ void setup() {
   pinMode(blue_pin,OUTPUT);    //RGB led pin
   pinMode(red_pin,OUTPUT);    //RGB led pin
   pinMode(green_pin,OUTPUT); //RGB led pin
+
+  pinMode(red_up,OUTPUT);     //red led go_up pin
+  pinMode(green_up,OUTPUT);   //green led go_up pin
+
+  pinMode(red_machine_state,OUTPUT);     //red led machine state pin
+  pinMode(green_machine_state,OUTPUT);   //green led machine state pin
   
   pinMode(S0,OUTPUT);
   pinMode(S1,OUTPUT);
@@ -378,13 +392,20 @@ void setup() {
   Servo_color.write(ang_descida_pintarola);
   Servo_down.write(ang_default_down);
   Servo_up.write(ang_default_up);
+
 }
 
 void loop() {
 
 if(MACHINE_MODE==OFF){
 
+digitalWrite(red_machine_state,HIGH);   //acende red led machine state
+digitalWrite(green_machine_state,LOW); //apaga green led machine state
+
 lcd.noBacklight(); //apaga luz de fundo do lcd
+
+digitalWrite(red_up,LOW);   //apaga red led do go up
+digitalWrite(green_up,LOW); //apaga green led do go up
 
 write_RGB(0,0,0); //apanga led RGB
 
@@ -401,12 +422,30 @@ delay(100);
 }
 
 else{
+
+digitalWrite(red_machine_state,LOW);   //apaga red led machine state
+digitalWrite(green_machine_state,HIGH); //acende green led machine state
+
 lcd.backlight(); //liga luz de fundo do lcd
+
+digitalWrite(green_up,HIGH); //acende led verde do go up
+digitalWrite(red_up,LOW);    //apaga led red do go up
+
+
 cont=-1;
 
+
+
+
 if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
+    digitalWrite(green_up,LOW);   //apaga led verde do go up
+    digitalWrite(red_up,HIGH);    //acende led red do go up
+
     cont_no_wanted=0;
     GO_UP();
+
+    digitalWrite(green_up,HIGH); //acende led verde do go up
+    digitalWrite(red_up,LOW);    //apaga led red do go up
   }
 
   //esperar pela interação dda aplicação e depois fazer cont=0
@@ -422,6 +461,8 @@ while(cont<wanted && cont!=-1){
     Servo_color.write(i);
     delay(30);
   }
+  
+  delay(100);
   
 
     //.....................PATCH SELECTION................
@@ -498,8 +539,15 @@ while(cont<wanted && cont!=-1){
   delay(100);
 
   if(cont_no_wanted==lim_no_wanted){  //se o nº de pintarolas no recipiente no_wanted chegar ao lim_max vai "despejar" no recipiente inicial
+    digitalWrite(green_up,LOW);   //apaga led verde do go up
+    digitalWrite(red_up,HIGH);    //acende led red do go up
+
     cont_no_wanted=0;
     GO_UP();
+
+    digitalWrite(green_up,HIGH); //acende led verde do go up
+    digitalWrite(red_up,LOW);    //apaga led red do go up
+
   }
 
 }
