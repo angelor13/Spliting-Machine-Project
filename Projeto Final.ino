@@ -95,6 +95,11 @@ byte char_0_esquerda[] = {
 #define pin_servo_down 11
 #define pin_servo_up 12
 
+//RGB Led pins 
+
+#define blue_pin 11
+#define red_pin 10
+#define green_pin 9
 
 //int red_freq,green_freq, blue_freq;
 
@@ -115,6 +120,17 @@ char BLUE = 'B';
 char BROWN = 'C';
 char GREEN = 'G';
 char UNKNOWN = 'U';
+
+//define array of RGB colors for Led RGB
+
+int colors[][3]={ {255,0,0},
+                  {40,0,255},
+                  {0,0,255},
+                  {0,255,0},
+                  {200,0,255},
+                  {4,0,255}
+                  };
+
 
 int cont=0; // contador pintarolas wanted
 int wanted; //quantidade de pintarolas que o utilizador quer
@@ -236,6 +252,51 @@ void go_up(){
 
 }
 
+//função responsavel pela troca de power states da maquina
+
+void switch_machine_state(){
+  if (MACHINE_MODE==OFF){
+    MACHINE_MODE==ON;
+  }
+  else{
+    MACHINE_MODE=OFF;
+  }
+}
+
+
+//função que escreve no led RGB
+
+void write_RGB(int red, int green, int blue){
+  analogWrite(red_pin,red);
+  analogWrite(green_pin,green);
+  analogWrite(blue_pin,blue);
+
+}
+
+//função que sabendo a cor requerida pelo utilizador, a escreve no led RGB
+
+void write_wanted_color_RGB(char cor){
+  if (cor == GREEN){
+    write_RGB(colors[0][2],colors[0][0],colors[0][1]);
+  }
+  else if(cor==ORANGE){
+    write_RGB(colors[1][2],colors[1][0],colors[1][1]);
+  }
+  else if(cor==RED){
+    write_RGB(colors[2][2],colors[2][0],colors[2][1]);
+  }
+  else if(cor==BLUE){
+    write_RGB(colors[3][2],colors[3][0],colors[3][1]);
+  }
+  else if(cor==YELLOW){
+    write_RGB(colors[4][2],colors[4][0],colors[4][1]);
+  }
+  else { //se a cor for brown
+    write_RGB(colors[5][2],colors[5][0],colors[5][1]);
+  }
+}
+
+
 void setup() {
   
   lcd.init(); //inicialização do lcd
@@ -246,6 +307,10 @@ void setup() {
   Servo_color.attach(pin_servo_color);
   Servo_down.attach(pin_servo_down);
   Servo_up.attach(pin_servo_up);
+
+  pinMode(blue_pin,OUTPUT);
+  pinMode(red_pin,OUTPUT);
+  pinMode(green_pin,OUTPUT);
   
   pinMode(S0,OUTPUT);
   pinMode(S1,OUTPUT);
@@ -278,13 +343,24 @@ void loop() {
 
 if(MACHINE_MODE==OFF){
 
-//desligar leds e lcd
+lcd.noBacklight(); //apaga luz de fundo do lcd
+
+write_RGB(0,0,0); //apanga led RGB
+
+if(Serial.avalible()>0){ //se receber da app que e para ligar
+  received=Serial.read();
+  if(received==OFF){
+    switch_machine_state();
+  }
+}
+delay(100);
 
 }
+
 else{
 cont=-1;
 
-  //if(cont_no_wanted==lim_no_wanted){
+//if(cont_no_wanted>0){
     //cont_no_wanted=0;
     //chamar função que leva para cima (go up) -> e unica a ser descomentada /////
   //}
@@ -292,6 +368,10 @@ cont=-1;
   //esperar pela interação dda aplicação e depois fazer cont=0
     
 while(cont<wanted && cont!=-1){
+
+  //print no rgb led da cor requerida
+  write_wanted_color_RGB(color_wanted);
+
   //servo na posição inicial onde recebe as pintarolas 
   delay(300);
   for(int i=ang_descida_pintarola;i<ang_sensor;i++){
@@ -331,9 +411,9 @@ while(cont<wanted && cont!=-1){
             delay(10);
           }
 
-
           read=color_return(); //relê a cor 
           delay(50);
+          
         }
         cont_unknown=0;
         delay(200);
@@ -364,7 +444,7 @@ while(cont<wanted && cont!=-1){
     Servo_color.write(i);
     delay(10);
   }
-  delay(500);  //aqui a pintarola já caiu no recipiente certo
+  delay(500);  //aqui a pintarola já cai no recipiente certo
    
    //servo volta para onde recebe as pintarolas
    for(int i=ang_patch;i>ang_descida_pintarola;i--){
@@ -379,5 +459,6 @@ while(cont<wanted && cont!=-1){
   }
 
 }
+delay(200);
 }
 }
