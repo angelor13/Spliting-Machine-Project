@@ -270,10 +270,10 @@ void LCD_MODES(int time,int cont,int wanted){
 //função que troca os estados do LCD
 
 void switch_lcd_mode() {
-  if (CURRENT_LCD_MODE == BARRA_LCD_MODE) {  // default mode-> button mode
-    //Immediately turn off the LEDs...
+  if (CURRENT_LCD_MODE == BARRA_LCD_MODE) {  
+    
     CURRENT_LCD_MODE = OTHER_LCD_MODE;
-  } else {  //button mode->default mode
+  } else {  
     CURRENT_LCD_MODE = BARRA_LCD_MODE;
   }
 }
