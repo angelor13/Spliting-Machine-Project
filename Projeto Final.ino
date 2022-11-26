@@ -481,6 +481,8 @@ void setup() {
 
   pinMode(red_machine_state,OUTPUT);     //red led machine state pin
   pinMode(green_machine_state,OUTPUT);   //green led machine state pin
+
+  pinMode(button,INPUT); //botão do lcd
   
   pinMode(S0,OUTPUT);
   pinMode(S1,OUTPUT);
