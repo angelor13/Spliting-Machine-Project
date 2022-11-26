@@ -92,6 +92,11 @@ byte char_0_esquerda[] = {
 #define red_machine_state 30
 #define green_machine_state 31
 
+//button pins
+
+#define button 40
+
+
 // sensor pins
 #define S0 2
 #define S1 3
@@ -149,6 +154,12 @@ int cont_no_wanted=0; //contador de pintarolas no wanted
 int lim_no_wanted; //limite de pintarolas no recipiente no wanted
 int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no caso acontecerá quando não houver pintaroras no "depósito" superior
 
+// LCD states
+
+const int BARRA_LCD_MODE = 0; //modo do lcd para escrever barra e percentagem de pintarolas ja conseguidas
+int CURRENT_LCD_MODE = BARRA_LCD_MODE;  //inicialização de modo do LCD inicial como o de escrevr barra
+const int OTHER_LCD_MODE = 1; //modo alternativo no lcd
+
 //power states of the machine
 char OFF='F';
 char ON='N';
@@ -162,6 +173,110 @@ int WANTED=1; //estado na posição das pintarolas que o utilizador não quer
 int LAST_POS=NO_WANTED; //última pisição do Servo_patch
 
 //................FUNCTIONS...................................
+
+void LCD_BARRA(int cont,int wanted){    //função que desenha a barra no lcd no modo lcd_barra
+
+  int n=map(cont,0,wanted,0,15);
+  int perc=map(cont,0,wanted,0,100);
+
+lcd.print("Sorting... ");
+  lcd.print(perc);
+  lcd.print("%");
+
+
+if(n==15){
+  
+  lcd.setCursor(0,1);
+  lcd.write(byte(1));
+  for(int i=1;i<15;i++){
+    lcd.setCursor(i,1);
+    lcd.write(byte(3));
+  }
+  lcd.setCursor(15,1);
+  lcd.write(byte(5));
+}
+
+else if(n==0){
+   lcd.setCursor(0,1);
+  lcd.write(byte(0));
+  for(int i=1;i<15;i++){
+    lcd.setCursor(i,1);
+    lcd.write(byte(2));
+  }
+  lcd.setCursor(15,1);
+  lcd.write(byte(4));
+}
+else{
+   lcd.setCursor(0,1);
+  lcd.write(byte(1));
+  for(int i=1;i<15;i++){
+    if(i<=n){
+    lcd.setCursor(i,1);
+    lcd.write(byte(3));
+    }
+    else{
+      lcd.setCursor(i,1);
+    lcd.write(byte(2));
+    }
+  }
+  lcd.setCursor(15,1);
+  lcd.write(byte(4));
+}
+}
+ 
+//função que deteta press do botão
+
+bool detect_press() {
+  static int buttonState = LOW;  //initialize once in LOW
+  bool pressed = false;
+  int newbuttonState = digitalRead(button);  //pressed->unpressed (button lifted)
+  if (buttonState == HIGH && newbuttonState == LOW) {
+     //change mode!
+    pressed = true;
+  }
+  buttonState = newbuttonState;  //keep track of button state
+  return pressed;
+}
+
+//função que muda state do LCD durante os processos
+
+void LCD_MODES(int time,int cont,int wanted){
+  int start = millis();
+  while(millis()-start<=time){
+    if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE){
+      LCD_BARRA(cont,wanted);
+      if(detect_press()){
+        switch_lcd_mode();
+        lcd.clear();
+      }
+    }
+    else{
+      lcd.print("To sort:"); //dar print de outra coisa
+      lcd.setCursor(15,0);
+      lcd.print(wanted);
+      lcd.setCursor(0,1);
+      lcd.print("Sorted:");
+      lcd.setCursor(15,1);
+      lcd.print(cont);
+        if(detect_press()){
+          switch_lcd_mode();
+          lcd.clear();
+    }
+  }
+}
+}
+
+
+//função que troca os estados do LCD
+
+void switch_lcd_mode() {
+  if (CURRENT_LCD_MODE == BARRA_LCD_MODE) {  // default mode-> button mode
+    //Immediately turn off the LEDs...
+    CURRENT_LCD_MODE = OTHER_LCD_MODE;
+  } else {  //button mode->default mode
+    CURRENT_LCD_MODE = BARRA_LCD_MODE;
+  }
+}
 
 
 int media(int tab[10]){ //função para calcular a media das leituras do sensor para minimizar erros de leitura
@@ -407,15 +522,15 @@ lcd.noBacklight(); //apaga luz de fundo do lcd
 digitalWrite(red_up,LOW);   //apaga red led do go up
 digitalWrite(green_up,LOW); //apaga green led do go up
 
-write_RGB(0,0,0); //apanga led RGB
+write_RGB(0,0,0); //apaga led RGB
 
-
+/*
 if(Serial.avalible()>0){ //se receber da app que e para ligar
   received=Serial.read();
   if(received==ON){
     switch_machine_state();
   }
-}
+}*/
 
 delay(100);
 
