@@ -574,7 +574,7 @@ while(cont<wanted && cont!=-1){
 
   //servo na posição inicial onde recebe as pintarolas 
   delay(300);
-  for(int i=ang_descida_pintarola;i<ang_sensor;i++){
+  for(int i=ang_descida_pintarola;i>ang_sensor;i--){
     Servo_color.write(i);
     delay(30);
   }
@@ -608,7 +608,7 @@ while(cont<wanted && cont!=-1){
 
           Servo_color.write(ang_descida_pintarola); //volta para a posição onde recebe pintarolas
           delay(300);
-          for(int i=ang_descida_pintarola;i<ang_sensor;i++){ //vai verificar ao sensor
+          for(int i=ang_descida_pintarola;i>ang_sensor;i--){ //vai verificar ao sensor
             Servo_color.write(i);
             delay(30);
           }
@@ -642,16 +642,16 @@ while(cont<wanted && cont!=-1){
   delay(500);
 
   //posição no buraco onde a pintarola cai para o patch
-  for(int i=ang_sensor;i<ang_patch;i++){
+  for(int i=ang_sensor;i>ang_patch;i--){
     Servo_color.write(i);
     delay(30);
   }
   delay(500);  //aqui a pintarola já cai no recipiente certo
    
    //servo volta para onde recebe as pintarolas ja sem pintarolas
-   for(int i=ang_patch;i>ang_descida_pintarola;i--){
+   for(int i=ang_patch;i<ang_descida_pintarola;i++){
     Servo_color.write(i);
-    delay(10);
+    delay(5);
   }
   delay(100);
 
