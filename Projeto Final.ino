@@ -243,12 +243,14 @@ bool detect_press() {
 void LCD_MODES(int time,int cont,int wanted){
   int start = millis();
   while(millis()-start<=time){
-    if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE){
-      LCD_BARRA(cont,wanted);
+      
       if(detect_press()){
         switch_lcd_mode();
         lcd.clear();
       }
+      
+    if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE){
+      LCD_BARRA(cont,wanted);
     }
     else{
       lcd.print("To sort:"); //dar print de outra coisa
@@ -258,10 +260,6 @@ void LCD_MODES(int time,int cont,int wanted){
       lcd.print("Sorted:");
       lcd.setCursor(15,1);
       lcd.print(cont);
-        if(detect_press()){
-          switch_lcd_mode();
-          lcd.clear();
-    }
   }
 }
 }
