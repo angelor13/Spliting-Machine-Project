@@ -77,6 +77,31 @@ byte char_0_esquerda[] = {
     B00001,
     B11111
     };
+  
+   // Caractere char_0_pintarola: ( Byte 6 )
+byte char_0_pintarola[] = {
+  B00000,  //
+  B00000,  //
+  B01110,  //   * * *
+  B10001,  // *       *
+  B10001,  // *       *
+  B10001,  // *       *
+  B01110,  //   * * *
+  B00000   //
+};
+
+// Caractere char_1_pintarola: ( Byte 7 )
+byte char_1_pintarola[] = {
+  B00000,  //
+  B00000,  //
+  B01110,  //   * * *
+  B11111,  // * * * * *
+  B11111,  // * * * * *
+  B11111,  // * * * * *
+  B01110,  //   * * *
+  B00000   //
+}; 
+
 
 
 
@@ -118,13 +143,13 @@ byte char_0_esquerda[] = {
 
 //int red_freq,green_freq, blue_freq;
 
-int ang_descida_pintarola,ang_sensor,ang_patch;
+int ang_descida_pintarola = 127, ang_sensor=90, ang_patch = 27;
 
 int ang_patch_wanted;
 int ang_patch_no_wanted;
 
-int ang_default_up = 45;
-int ang_default_down = 0;
+int ang_default_up = 140;
+int ang_default_down = 15;
 
 //define colors
 
@@ -159,6 +184,10 @@ int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no 
 const int BARRA_LCD_MODE = 0; //modo do lcd para escrever barra e percentagem de pintarolas ja conseguidas
 int CURRENT_LCD_MODE = BARRA_LCD_MODE;  //inicialização de modo do LCD inicial como o de escrevr barra
 const int OTHER_LCD_MODE = 1; //modo alternativo no lcd
+const int COLOR_LCD_MODE=2; //modo do lcd em que mostra a cor que estamos a escolher
+int LAST_LCD_MODE=-1; //ultimo modo escolhido no lcd
+int last_cont; //ultima contagem de pintarolas do tipo wanted
+char last_color; //umtima cor escolhida
 
 //power states of the machine
 char OFF='F';
@@ -173,6 +202,129 @@ int WANTED=1; //estado na posição das pintarolas que o utilizador não quer
 int LAST_POS=NO_WANTED; //última pisição do Servo_patch
 
 //................FUNCTIONS...................................
+void LCD_COLOR_MODE(char cor){  //modo do lcd que nos da a cor a ser escolhida
+  if (cor== RED){
+    lcd.setCursor(0,0);
+    lcd.print("R-");
+    lcd.write(byte(7));
+    lcd.setCursor(4,0);
+    lcd.print("B-");
+    lcd.write(byte(6));
+    lcd.setCursor(8,0);
+     lcd.print("Y-");
+    lcd.write(byte(6));
+    lcd.setCursor(12,0);
+     lcd.print("BR-");
+    lcd.write(byte(6));
+    lcd.setCursor(3,1);
+    lcd.print("G-");
+    lcd.write(byte(6));
+    lcd.setCursor(11,1);
+     lcd.print("OR-");
+    lcd.write(byte(6));
+  }
+  else if(cor== BLUE){
+     lcd.setCursor(0,0);
+    lcd.print("R-");
+    lcd.write(byte(6));
+    lcd.setCursor(6,0);
+    lcd.print("B-");
+    lcd.write(byte(7));
+    lcd.setCursor(10,0);
+     lcd.print("Y-");
+    lcd.write(byte(6));
+    lcd.setCursor(12,0);
+     lcd.print("BR-");
+    lcd.write(byte(6));
+    lcd.setCursor(5,1);
+    lcd.print("G-");
+    lcd.write(byte(6));
+    lcd.setCursor(11,1);
+     lcd.print("OR-");
+    lcd.write(byte(6));
+  }
+  else if(cor== YELLOW){
+     lcd.setCursor(0,0);
+    lcd.print("R-");
+    lcd.write(byte(6));
+    lcd.setCursor(4,0);
+    lcd.print("B-");
+    lcd.write(byte(6));
+    lcd.setCursor(8,0);
+     lcd.print("Y-");
+    lcd.write(byte(7));
+    lcd.setCursor(12,0);
+     lcd.print("BR-");
+    lcd.write(byte(6));
+    lcd.setCursor(3,1);
+    lcd.print("G-");
+    lcd.write(byte(6));
+    lcd.setCursor(11,1);
+     lcd.print("OR-");
+    lcd.write(byte(6));
+  }
+  else if(cor== BROWN){
+     lcd.setCursor(0,0);
+    lcd.print("R-");
+    lcd.write(byte(6));
+    lcd.setCursor(4,0);
+    lcd.print("B-");
+    lcd.write(byte(6));
+    lcd.setCursor(8,0);
+     lcd.print("Y-");
+    lcd.write(byte(6));
+    lcd.setCursor(12,0);
+     lcd.print("BR-");
+    lcd.write(byte(7));
+    lcd.setCursor(3,1);
+    lcd.print("G-");
+    lcd.write(byte(6));
+    lcd.setCursor(11,1);
+     lcd.print("OR-");
+    lcd.write(byte(6));
+  }
+  else if(cor== GREEN){
+     lcd.setCursor(0,0);
+    lcd.print("R-");
+    lcd.write(byte(6));
+    lcd.setCursor(4,0);
+    lcd.print("B-");
+    lcd.write(byte(6));
+    lcd.setCursor(8,0);
+     lcd.print("Y-");
+    lcd.write(byte(6));
+    lcd.setCursor(12,0);
+     lcd.print("BR-");
+    lcd.write(byte(6));
+    lcd.setCursor(3,1);
+    lcd.print("G-");
+    lcd.write(byte(7));
+    lcd.setCursor(11,1);
+     lcd.print("OR-");
+    lcd.write(byte(6));
+  }
+  else{
+     lcd.setCursor(0,0);
+    lcd.print("R-");
+    lcd.write(byte(6));
+    lcd.setCursor(4,0);
+    lcd.print("B-");
+    lcd.write(byte(6));
+    lcd.setCursor(8,0);
+     lcd.print("Y-");
+    lcd.write(byte(6));
+    lcd.setCursor(12,0);
+     lcd.print("BR-");
+    lcd.write(byte(6));
+    lcd.setCursor(3,1);
+    lcd.print("G-");
+    lcd.write(byte(6));
+    lcd.setCursor(11,1);
+     lcd.print("OR-");
+    lcd.write(byte(7));
+  }
+  
+}
 
 void LCD_BARRA(int cont,int wanted){    //função que desenha a barra no lcd no modo lcd_barra
 
@@ -197,7 +349,7 @@ if(n==15){
 }
 
 else if(n==0){
-   lcd.setCursor(0,1);
+  lcd.setCursor(0,1);
   lcd.write(byte(0));
   for(int i=1;i<15;i++){
     lcd.setCursor(i,1);
@@ -207,7 +359,7 @@ else if(n==0){
   lcd.write(byte(4));
 }
 else{
-   lcd.setCursor(0,1);
+  lcd.setCursor(0,1);
   lcd.write(byte(1));
   for(int i=1;i<15;i++){
     if(i<=n){
@@ -215,7 +367,7 @@ else{
     lcd.write(byte(3));
     }
     else{
-      lcd.setCursor(i,1);
+    lcd.setCursor(i,1);
     lcd.write(byte(2));
     }
   }
@@ -240,42 +392,71 @@ bool detect_press() {
 
 //função que muda state do LCD durante os processos
 
-void LCD_MODES(int time,int cont,int wanted){
-  int start = millis();
+void LCD_MODES(int time,int cont,int wanted,char color){
+
+  if(!detect_press()){
+      int start = millis();
   while(millis()-start<=time){
-      
-      if(detect_press()){
+
+    if(detect_press()){
         switch_lcd_mode();
         lcd.clear();
       }
       
-    if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE){
-      LCD_BARRA(cont,wanted);
+    else if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE ){
+      if(last_cont!=cont || LAST_LCD_MODE!=OTHER_LCD_MODE || last_color!=color){
+        last_cont=cont;
+        last_color=color;
+        LAST_LCD_MODE=OTHER_LCD_MODE;
+        lcd.clear();
+      LCD_BARRA(last_cont);
+      }
+    }
+    
+    else if(CURRENT_LCD_MODE ==  COLOR_LCD_MODE){
+            if(last_cont!=cont || LAST_LCD_MODE!=BARRA_LCD_MODE || last_color!=color){
+        last_cont=cont;
+        last_color=color;
+        LAST_LCD_MODE=BARRA_LCD_MODE;
+        lcd.clear();
+      LCD_COLOR_MODE(last_color);
+      }
+      
     }
     else{
+    
+      if(last_cont!=cont|| LAST_LCD_MODE!=COLOR_LCD_MODE || last_color!=color){
+        last_color=color;
+        last_cont=cont;
+        LAST_LCD_MODE=COLOR_LCD_MODE;
+        lcd.clear();
       lcd.print("To sort:"); //dar print de outra coisa
-      lcd.setCursor(15,0);
+      lcd.setCursor(10,0);
       lcd.print(wanted);
       lcd.setCursor(0,1);
       lcd.print("Sorted:");
-      lcd.setCursor(15,1);
-      lcd.print(cont);
+      lcd.setCursor(10,1);
+      lcd.print(last_cont); //dar print de outra coisa
+      }
   }
 }
 }
-
+}
 
 //função que troca os estados do LCD
 
 void switch_lcd_mode() {
   if (CURRENT_LCD_MODE == BARRA_LCD_MODE) {  
     
+    CURRENT_LCD_MODE = COLOR_LCD_MODE;
+  } 
+  else if(CURRENT_LCD_MODE==COLOR_LCD_MODE){
     CURRENT_LCD_MODE = OTHER_LCD_MODE;
-  } else {  
+  }
+  else {  
     CURRENT_LCD_MODE = BARRA_LCD_MODE;
   }
 }
-
 
 int media(int tab[10]){ //função para calcular a media das leituras do sensor para minimizar erros de leitura
   int soma=0;
@@ -373,41 +554,41 @@ void GO_UP(){
   Servo_down.write(0);
   Servo_up.write(45);
 
-  for (int i = 0; i < 40; i++) {
+  for (int i = 15; i < 50; i++) {
     Servo_down.write(i);
     delay(30);
   }
 
   delay(1500);
 
-  for (int i = 45; i > 10; i--) {
+  for (int i = 140; i > 100; i--) {
     Servo_up.write(i);
     delay(10);
   }
   delay(1500);
 
-  for (int i = 40; i < 68; i++) {
+  for (int i = 50; i < 97; i++) {
     Servo_down.write(i);
     delay(30);
   }
 
   delay(1000);
 
-  for (int i = 10; i < 110; i++) {
+  for (int i = 100; i < 175; i++) {
     Servo_up.write(i);
     delay(30);
   }
 
   delay(3000); //recoloca as pintarolas
 
-  for (int i = 110; i > 45; i--) {
+  for (int i = 160; i > 140; i--) {
     Servo_up.write(i);
     delay(30);
   }
 
   delay(2000);
 
-  for (int i = 68; i > 0; i--) {
+  for (int i = 97; i > 15; i--) {
     Servo_down.write(i);
     delay(30);
   }
@@ -496,6 +677,8 @@ void setup() {
   lcd.createChar( 3, char_1_centro);
   lcd.createChar( 4, char_0_direita);
   lcd.createChar( 5, char_1_direita);
+  lcd.createChar(6,char_0_pintarola);
+  lcd.createChar(7,char_1_pintarola);
   
   //escalar a freq para 20%
   digitalWrite(S0,HIGH);
@@ -649,7 +832,7 @@ while(cont<wanted && cont!=-1){
    //servo volta para onde recebe as pintarolas ja sem pintarolas
    for(int i=ang_patch;i<ang_descida_pintarola;i++){
     Servo_color.write(i);
-    delay(5);
+    delay(10);
   }
   delay(100);
 
