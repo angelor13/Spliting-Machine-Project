@@ -194,6 +194,12 @@ char OFF='F';
 char ON='N';
 char MACHINE_MODE=OFF;
 
+// bluetooth mode
+char CONNECTED='D';
+char DISCONNECTED='S';
+char BLUETOOTH_MODE=DISCONNECTED;
+
+
 char received; // char recebido pelo programa vindo da app
 
 char read; //cor lida pelo sensor
@@ -409,7 +415,7 @@ void LCD_MODES(int time,int cont,int wanted,char color){
         last_color=color;
         LAST_LCD_MODE=OTHER_LCD_MODE;
         lcd.clear();
-      LCD_BARRA(last_cont);
+      LCD_BARRA(last_cont,wanted);
       }
     }
     
@@ -441,6 +447,16 @@ void LCD_MODES(int time,int cont,int wanted,char color){
   }
 }
 }
+}
+
+//funçao que troca os estado de conexão bluetooth
+void switch_bluetooth_state(){
+  if(BLUETOOTH_MODE==CONECTED){
+    BLUETOOTH_MODE=DISCONECTED;
+  }
+  else{
+    BLUETOOTH_MODE=CONECTED;
+  }
 }
 
 //função que troca os estados do LCD
@@ -707,15 +723,44 @@ digitalWrite(green_up,LOW); //apaga green led do go up
 
 write_RGB(0,0,0); //apaga led RGB
 
-/*
+
+
 if(Serial.avalible()>0){ //se receber da app que e para ligar
   received=Serial.read();
-  if(received==ON){
-    switch_machine_state();
+  
+  if(received==CONNECTED){
+    switch_bluetooth_state();
+    lcd.backlight();
+    lcd.print("Device conected");
+    for(int i=0;i<2;i++){
+      lcd.scrollDisplayRight();
+      delay(250);
+    }
+    lcd.clear();
+    lcd.noBacklight();
   }
-}*/
+  else if(received==DISCONNECTED){
+     switch_bluetooth_state();
+     lcd.backlight();
+    lcd.print("Disconected");
+    for(int i=0;i<4;i++){
+      lcd.scrollDisplayRight();
+      delay(250);
+    }
+    lcd.clear();
+    lcd.noBacklight();
+  }
 
-delay(100);
+  else if(received==ON){
+    switch_machine_state();
+    lcd.backlight();
+    lcd.print("POWER ON");
+    delay(500);
+    lcd.clear();
+  }
+}
+
+delay(50);
 
 }
 
@@ -732,19 +777,93 @@ digitalWrite(red_up,LOW);    //apaga led red do go up
 
 cont=-1;
 
+if(Serial.avaliable()>0){ //se receber alguma coisa da aplicação
+  received=Serial.read();
 
-
-
-if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
-    digitalWrite(green_up,LOW);   //apaga led verde do go up
-    digitalWrite(red_up,HIGH);    //acende led red do go up
-
-    cont_no_wanted=0;
-    GO_UP();
-
-    digitalWrite(green_up,HIGH); //acende led verde do go up
-    digitalWrite(red_up,LOW);    //apaga led red do go up
+  if(received==OFF){
+    switch_machine_state();
+    lcd.print("POWER OFF");
+    delay(500);
+    lcd.clear();
+    
   }
+
+  else if(received==DISCONNED){
+    lcd.print("Disconected");
+    while(received!=CONNECTED){
+      if(Serial.avaliable()>0){
+        received=Serial.read();
+      }
+      lcd.scrollDisplayRight();
+      delay(50);
+    }
+    lcd.clear();
+  }
+
+  else {
+    if(received==RED){
+      color_wanted=RED;
+    }
+    else if(received == BLUE){
+      color_wanted=BLUE;
+    }
+    else if (received==YELLOW){
+      color_wanted=YELLOW;
+    }
+    else if (received==BROWN){
+      color_wanted=BROWN;
+    }
+    else if (received==GREEN){
+      color_wanted=GREEN;
+    }
+    else if (received==ORANGE){
+      color_wanted=ORANGE;
+    }
+    else if (received=='1'){
+      wanted=1;
+      cont=0;
+    }
+    else if (received=='2'){
+      wanted=2;
+      cont=0;
+    }
+    else if (received=='3'){
+      wanted=3;
+      cont=0;
+    }
+    else if (received=='4'){
+      wanted=4;
+      cont=0;
+    }
+    else if (received=='5'){
+      wanted=5;
+      cont=0;
+    }
+    else if (received=='6'){
+      wanted=6;
+      cont=0;
+    }
+    else if (received=='7'){
+      wanted=7;
+      cont=0;
+    }
+    else if (received=='8'){
+      wanted=8;
+      cont=0;
+    }
+    else if (received=='9'){
+      wanted=9;
+      cont=0;
+    }
+  }
+}
+else {
+  for(int i=0;i<6;i++){
+  lcd.print("Waiting data!");
+  delay(100);
+  lcd.clear();
+  }
+}
 
   //esperar pela interação dda aplicação e depois fazer cont=0
     
@@ -850,7 +969,19 @@ while(cont<wanted && cont!=-1){
 
   delay(300);
 }
+
+if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
+    digitalWrite(green_up,LOW);   //apaga led verde do go up
+    digitalWrite(red_up,HIGH);    //acende led red do go up
+
+    cont_no_wanted=0;
+    GO_UP();
+
+    digitalWrite(green_up,HIGH); //acende led verde do go up
+    digitalWrite(red_up,LOW);    //apaga led red do go up
+  }
 //print no lcd que acabou a tarefa
 delay(200);
+
 }
 }
