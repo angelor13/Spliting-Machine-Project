@@ -4,7 +4,7 @@
 
 #define endereco 0x27 //endereço do arduino usado para escrever no lcd no i2c
 
-SoftwareSerial BTSerial(3, 2); // rx, tx (arduino) --> tx, rx (bluetooth)
+SoftwareSerial BTSerial(0, 1); // rx, tx (arduino) --> tx, rx (bluetooth)
 
 LiquidCrystal_I2C lcd=LiquidCrystal_I2C(endereco,16,2); //criar um objeto que será o lcd
 
@@ -112,37 +112,30 @@ byte char_1_pintarola[] = {
 
 //led pins(go up state)
 
-#define red_up 4
-#define green_up 5
+#define red_up 10
+
 
 //machine state led pins
 
-#define red_machine_state 30
-#define green_machine_state 31
+#define red_machine_state 11
+#define green_machine_state 13
 
 //button pins
 
-#define button 40
-
+#define button A0
 
 // sensor pins
-#define S0 2
-#define S1 3
-#define S2 4
-#define S3 5
-#define sensor_output 6
+#define S0 8
+#define S1 12
+#define S2 2
+#define S3 7
+#define sensor_output 4
 
 //servo motors pins
-#define pin_servo_patch 9
-#define pin_servo_color 10
-#define pin_servo_down 11
-#define pin_servo_up 12
-
-//RGB Led pins 
-
-#define blue_pin 11
-#define red_pin 10
-#define green_pin 9
+#define pin_servo_patch 5
+#define pin_servo_color 9
+#define pin_servo_down 3
+#define pin_servo_up 6
 
 //int red_freq,green_freq, blue_freq;
 
@@ -152,12 +145,9 @@ int ang_patch_wanted = 124;
 int ang_patch_no_wanted = 154;
 
 int ang_default_up = 179;
-int ang_default_down = 15;
+int ang_default_down = 11;
 
 //define colors
-
-char RED = 'R';
-char ORANGE ='O';
 char YELLOW = 'Y';
 char BLUE = 'B';
 char BROWN = 'C';
@@ -167,8 +157,6 @@ char UNKNOWN = 'U';
 //define array of RGB colors for Led RGB
 
 int colors[][3]={ {255,0,0},    //green
-                  {40,0,255},   //orange
-                  {0,0,255},    //red
                   {0,255,0},    //blue
                   {200,0,255},  //yellow
                   {4,0,255}     //brown
@@ -215,125 +203,78 @@ int LAST_POS=NO_WANTED; //última pisição do Servo_patch
 
 //................FUNCTIONS...................................
 void LCD_COLOR_MODE(char cor){  //modo do lcd que nos da a cor a ser escolhida
-  if (cor == RED){
+
+   if(cor== BLUE){
     lcd.setCursor(0,0);
-    lcd.print("R-");
-    lcd.write(byte(7));
-    lcd.setCursor(4,0);
     lcd.print("B-");
-    lcd.write(byte(6));
-    lcd.setCursor(8,0);
-     lcd.print("Y-");
-    lcd.write(byte(6));
-    lcd.setCursor(12,0);
-     lcd.print("BR-");
-    lcd.write(byte(6));
-    lcd.setCursor(3,1);
-    lcd.print("G-");
-    lcd.write(byte(6));
-    lcd.setCursor(11,1);
-     lcd.print("OR-");
-    lcd.write(byte(6));
-  }
-  else if(cor== BLUE){
-     lcd.setCursor(0,0);
-    lcd.print("R-");
-    lcd.write(byte(6));
+    lcd.write(byte(7));
     lcd.setCursor(6,0);
-    lcd.print("B-");
-    lcd.write(byte(7));
-    lcd.setCursor(10,0);
      lcd.print("Y-");
     lcd.write(byte(6));
     lcd.setCursor(12,0);
      lcd.print("BR-");
     lcd.write(byte(6));
-    lcd.setCursor(5,1);
+    lcd.setCursor(8,1);
     lcd.print("G-");
     lcd.write(byte(6));
-    lcd.setCursor(11,1);
-     lcd.print("OR-");
-    lcd.write(byte(6));
+
   }
   else if(cor== YELLOW){
-     lcd.setCursor(0,0);
-    lcd.print("R-");
-    lcd.write(byte(6));
-    lcd.setCursor(4,0);
+
+    lcd.setCursor(0,0);
     lcd.print("B-");
     lcd.write(byte(6));
-    lcd.setCursor(8,0);
+    lcd.setCursor(6,0);
      lcd.print("Y-");
     lcd.write(byte(7));
     lcd.setCursor(12,0);
      lcd.print("BR-");
     lcd.write(byte(6));
-    lcd.setCursor(3,1);
+    lcd.setCursor(8,1);
     lcd.print("G-");
-    lcd.write(byte(6));
-    lcd.setCursor(11,1);
-     lcd.print("OR-");
     lcd.write(byte(6));
   }
   else if(cor== BROWN){
-     lcd.setCursor(0,0);
-    lcd.print("R-");
-    lcd.write(byte(6));
-    lcd.setCursor(4,0);
+    lcd.setCursor(0,0);
     lcd.print("B-");
     lcd.write(byte(6));
-    lcd.setCursor(8,0);
+    lcd.setCursor(6,0);
      lcd.print("Y-");
     lcd.write(byte(6));
     lcd.setCursor(12,0);
      lcd.print("BR-");
     lcd.write(byte(7));
-    lcd.setCursor(3,1);
+    lcd.setCursor(8,1);
     lcd.print("G-");
-    lcd.write(byte(6));
-    lcd.setCursor(11,1);
-     lcd.print("OR-");
     lcd.write(byte(6));
   }
   else if(cor== GREEN){
-     lcd.setCursor(0,0);
-    lcd.print("R-");
-    lcd.write(byte(6));
-    lcd.setCursor(4,0);
+    lcd.setCursor(0,0);
     lcd.print("B-");
     lcd.write(byte(6));
-    lcd.setCursor(8,0);
+    lcd.setCursor(6,0);
      lcd.print("Y-");
     lcd.write(byte(6));
     lcd.setCursor(12,0);
      lcd.print("BR-");
     lcd.write(byte(6));
-    lcd.setCursor(3,1);
+    lcd.setCursor(8,1);
     lcd.print("G-");
     lcd.write(byte(7));
-    lcd.setCursor(11,1);
-     lcd.print("OR-");
-    lcd.write(byte(6));
   }
   else{
-     lcd.setCursor(0,0);
-    lcd.print("R-");
-    lcd.write(byte(6));
-    lcd.setCursor(4,0);
+    lcd.setCursor(0,0);
     lcd.print("B-");
     lcd.write(byte(6));
-    lcd.setCursor(8,0);
+    lcd.setCursor(6,0);
      lcd.print("Y-");
     lcd.write(byte(6));
     lcd.setCursor(12,0);
      lcd.print("BR-");
     lcd.write(byte(6));
-    lcd.setCursor(3,1);
+    lcd.setCursor(8,1);
     lcd.print("G-");
     lcd.write(byte(6));
-    lcd.setCursor(11,1);
-     lcd.print("OR-");
-    lcd.write(byte(7));
   }
   
 }
@@ -505,7 +446,8 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   //Serial.print("REd->  ");
   //Serial.print(red);
   //Serial.print("     ");
-  LCD_MODES(100,cont,wanted,color_wanted);
+
+  
 
   //filtro blue
   digitalWrite(S2,LOW);
@@ -514,7 +456,8 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   //Serial.print("blue->  ");
   //Serial.print(blue);
   //Serial.print("     ");
-  LCD_MODES(100,cont,wanted,color_wanted);
+
+  
 
   //filtro green
   digitalWrite(S2,HIGH);
@@ -533,33 +476,22 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   //Serial.print("     ");
   //Serial.println();
 
-  //detect laranja
-  if(red>=50 && red<=60 && blue>=70 && blue <=90 && green>=90 && green<=100){
-    return ORANGE;
-  }
-
   //detect azul
-  else if(red>=75 && red<=85 && blue>=75 && blue <=80 && green>=95 && green<=100){
+  if(red>=76 && red<=80 && blue>=70 && blue <=73 && green>=80 && green<=84){
     return BLUE;
   }
-
-  //detect vermelho
-  else if(red>=45 && red<=55 && blue>=70 && blue <=80 && green>=90 && green<=100){
-    return RED;
-  }
-
   //detect verde
-  else if(red>=65 && red<=75 && blue>=75 && blue <=90 && green>=80 && green<=90){
+  else if(red>=74 && red<=78 && blue>=72 && blue <=76 && green>=78 && green<=82){
     return GREEN;
   }
 
   //detect castanho
-  else if(red>=65 && red<=75 && blue>=75 && blue <=95 && green>=100 && green<=110){
+  else if(red>=76 && red<=79 && blue>=75 && blue <=78 && green>=82 && green<=85){
     return BROWN;
   }
 
   //detect amarelo
-  else if(red>=40 && red<=50 && blue>=70 && blue <=80 && green>=65 && green<=78){
+  else if(red>=71 && red<=74 && blue>=73 && blue <=77 && green>=78 && green<=81){
     return YELLOW;
   }
 
@@ -567,13 +499,12 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   else{
     return UNKNOWN;
   }
-
 }
 
 //função go up, responsavel por levar as pintarolas no wanted devolta para o deposito inicial
 
 void GO_UP(int cont,int wanted,char color_wanted){
-  Servo_down.write(15);
+  Servo_down.write(11);
   Servo_up.write(179);
 
   for(int i=179;i>140;i--){
@@ -581,7 +512,7 @@ void GO_UP(int cont,int wanted,char color_wanted){
     LCD_MODES(10,cont,wanted,color_wanted);
   }
 
-  for (int i = 15; i < 50; i++) {
+  for (int i = 11; i < 50; i++) {
     Servo_down.write(i);
     LCD_MODES(30,cont,wanted,color_wanted);
   }
@@ -615,7 +546,7 @@ void GO_UP(int cont,int wanted,char color_wanted){
 
   LCD_MODES(2000,cont,wanted,color_wanted);
 
-  for (int i = 97; i > 15; i--) {
+  for (int i = 97; i > 11; i--) {
     Servo_down.write(i);
     LCD_MODES(30,cont,wanted,color_wanted);
   }
@@ -638,40 +569,6 @@ void switch_machine_state(){
     MACHINE_MODE=OFF;
   }
 }
-
-
-//função que escreve no led RGB
-
-void write_RGB(int red, int green, int blue){
-  analogWrite(red_pin,red);
-  analogWrite(green_pin,green);
-  analogWrite(blue_pin,blue);
-
-}
-
-//função que sabendo a cor requerida pelo utilizador, a escreve no led RGB
-
-void write_wanted_color_RGB(char cor, int tab[][3]){
-  if (cor == GREEN){
-    write_RGB(tab[0][2],tab[0][0],tab[0][1]);
-  }
-  else if(cor==ORANGE){
-    write_RGB(tab[1][2],tab[1][0],tab[1][1]);
-  }
-  else if(cor==RED){
-    write_RGB(tab[2][2],tab[2][0],tab[2][1]);
-  }
-  else if(cor==BLUE){
-    write_RGB(tab[3][2],tab[3][0],tab[3][1]);
-  }
-  else if(cor==YELLOW){
-    write_RGB(tab[4][2],tab[4][0],tab[4][1]);
-  }
-  else { //se a cor for brown
-    write_RGB(tab[5][2],tab[5][0],tab[5][1]);
-  }
-}
-
 
 void setup() {
   
@@ -724,7 +621,8 @@ void setup() {
   Servo_color.write(ang_descida_pintarola);
   Servo_down.write(ang_default_down);
   Servo_up.write(ang_default_up);
-
+  
+  digitalwrite(red_up,LOW):
 }
 
 void loop() {
@@ -742,7 +640,7 @@ lcd.noBacklight(); //apaga luz de fundo do lcd
 digitalWrite(red_up,LOW);   //apaga red led do go up
 digitalWrite(green_up,LOW); //apaga green led do go up
 
-write_RGB(0,0,0); //apaga led RGB
+
 
 
 
@@ -754,11 +652,9 @@ if(BTSerial.available()>0){ //se receber da app que e para ligar
     lcd.backlight();
     for(int i=0;i<3;i++){
     lcd.print("Device conected");
-    delay(100);
+    delay(300);
     lcd.clear();
-    delay(100);
     }
-    lcd.clear();
     lcd.noBacklight();
   }
   /*else if(received==DISCONECTED){
@@ -791,7 +687,7 @@ digitalWrite(green_machine_state,HIGH); //acende green led machine state
 
 lcd.backlight(); //liga luz de fundo do lcd
 
-digitalWrite(green_up,HIGH); //acende led verde do go up
+
 digitalWrite(red_up,LOW);    //apaga led red do go up
 
 
@@ -825,10 +721,8 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
   }*/
 
   else {
-    if(received==RED){
-      color_wanted=RED;
-    }
-    else if(received == BLUE){
+
+    if(received == BLUE){
       color_wanted=BLUE;
     }
     else if (received==YELLOW){
@@ -839,9 +733,6 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
     }
     else if (received==GREEN){
       color_wanted=GREEN;
-    }
-    else if (received==ORANGE){
-      color_wanted=ORANGE;
     }
     else if (received=='H'){
       wanted=1;
@@ -881,6 +772,7 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
     }
   }
 }
+
 else if(BLUETOOTH_MODE == CONECTED){
   if(cont_conected==0){
     cont_disconected=0;
@@ -888,19 +780,24 @@ else if(BLUETOOTH_MODE == CONECTED){
   lcd.print("Waiting data!");
   cont_conected++;
   }
+
   lcd.scrollDisplayRight();
   
 }
 
 else{
 if(cont_disconected==0){
-  comeco=millis();
+  comeco=millis(); //começa a contar
   cont_conected=0;
   lcd.clear();
   lcd.print("Conect device");
   cont_disconected++;
   }
   else if(millis()-comeco>=10000){
+    lcd.clear();
+    lcd.print("Energy safe mode");
+    delay(500);
+    lcd.clear();
     switch_machine_state();
   }
   else{
@@ -941,16 +838,26 @@ read=color_return(cont,wanted,color_wanted); //lê cor
 
           if(cont_unknown<2){
 
-            //print que detetou cor desconhecida ou nao recolheu pintarola
-            LCD_MODES(1000,cont,wanted,color_wanted);
+            lcd.clear();
+            lcd.print("Erro");
+            delay(1000);
+            lcd.clear();
+            LAST_LCD_MODE=-1;
+
+            //LCD_MODES(1000,cont,wanted,color_wanted);
           }
           else{
 
             //print no lcd que nao ha pintarolas no deposito inicial
             lcd.clear();
-            lcd.print("Nao ha pintarolas disponiveis!");
+            lcd.print("Nao    ha ");
+            lcd.setCursor(3,1);
+            lcd.print("pintarolas!");
+            delay(1000);
+            lcd.clear();
             LAST_LCD_MODE=-1;
-            delay(2000);
+
+            //LCD_MODES(2000,cont,wanted,color_wanted);
           }
 
           Servo_color.write(ang_descida_pintarola); //volta para a posição onde recebe pintarolas
