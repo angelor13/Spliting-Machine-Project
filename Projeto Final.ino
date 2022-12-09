@@ -1,6 +1,6 @@
 #include <Servo.h>
 #include <LiquidCrystal_I2C.h>
-#include <Softwareserial.h>
+#include <SoftwareSerial.h>
 
 #define endereco 0x27 //endereço do arduino usado para escrever no lcd no i2c
 
@@ -117,7 +117,7 @@ byte char_1_pintarola[] = {
 
 //machine state led pins
 
-#define red_machine_state 11
+#define red_machine_state 3
 #define green_machine_state 13
 
 //button pins
@@ -134,12 +134,12 @@ byte char_1_pintarola[] = {
 //servo motors pins
 #define pin_servo_patch 5
 #define pin_servo_color 9
-#define pin_servo_down 3
+#define pin_servo_down 11
 #define pin_servo_up 6
 
 //int red_freq,green_freq, blue_freq;
 
-int ang_descida_pintarola = 171, ang_sensor=114, ang_patch =71;
+int ang_descida_pintarola = 179, ang_sensor=123, ang_patch =79;
 
 int ang_patch_wanted = 124;
 int ang_patch_no_wanted = 154;
@@ -154,20 +154,12 @@ char BROWN = 'C';
 char GREEN = 'G';
 char UNKNOWN = 'U';
 
-//define array of RGB colors for Led RGB
 
-int colors[][3]={ {255,0,0},    //green
-                  {0,255,0},    //blue
-                  {200,0,255},  //yellow
-                  {4,0,255}     //brown
-                  };
-
-
-int cont=0; // contador pintarolas wanted
-int wanted; //quantidade de pintarolas que o utilizador quer
+int cont=-1; // contador pintarolas wanted
+int wanted=1; //quantidade de pintarolas que o utilizador quer
 char color_wanted; //cor que o utilizador quer
 int cont_no_wanted = 0; //contador de pintarolas no wanted
-int lim_no_wanted = 6; //limite de pintarolas no recipiente no wanted
+int lim_no_wanted = 2; //limite de pintarolas no recipiente no wanted
 int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no caso acontecerá quando não houver pintaroras no "depósito" superior
 
 
@@ -476,22 +468,22 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   //Serial.print("     ");
   //Serial.println();
 
-  //detect azul
-  if(red>=76 && red<=80 && blue>=70 && blue <=73 && green>=80 && green<=84){
+   //detect azul
+   if(red>=79 && red<=84 && blue>=73 && blue <=77 && green>=82 && green<=89){
     return BLUE;
   }
   //detect verde
-  else if(red>=74 && red<=78 && blue>=72 && blue <=76 && green>=78 && green<=82){
+  else if(red>=77 && red<=82 && blue>=77 && blue <=81 && green>=81 && green<=86){
     return GREEN;
   }
 
   //detect castanho
-  else if(red>=76 && red<=79 && blue>=75 && blue <=78 && green>=82 && green<=85){
+  else if(red>=78 && red<=84 && blue>=78 && blue <=84 && green>=87 && green<=91){
     return BROWN;
   }
 
   //detect amarelo
-  else if(red>=71 && red<=74 && blue>=73 && blue <=77 && green>=78 && green<=81){
+  else if(red>=75 && red<=77 && blue>=75 && blue <=79 && green>=81 && green<=84 ){
     return YELLOW;
   }
 
@@ -563,7 +555,7 @@ void GO_UP(int cont,int wanted,char color_wanted){
 
 void switch_machine_state(){
   if (MACHINE_MODE==OFF){
-    MACHINE_MODE==ON;
+    MACHINE_MODE=ON;
   }
   else{
     MACHINE_MODE=OFF;
@@ -582,12 +574,8 @@ void setup() {
   Servo_down.attach(pin_servo_down);
   Servo_up.attach(pin_servo_up);
 
-  pinMode(blue_pin,OUTPUT);    //RGB led pin
-  pinMode(red_pin,OUTPUT);    //RGB led pin
-  pinMode(green_pin,OUTPUT); //RGB led pin
-
   pinMode(red_up,OUTPUT);     //red led go_up pin
-  pinMode(green_up,OUTPUT);   //green led go_up pin
+
 
   pinMode(red_machine_state,OUTPUT);     //red led machine state pin
   pinMode(green_machine_state,OUTPUT);   //green led machine state pin
@@ -622,7 +610,7 @@ void setup() {
   Servo_down.write(ang_default_down);
   Servo_up.write(ang_default_up);
   
-  digitalwrite(red_up,LOW):
+  digitalWrite(red_up,LOW);
 }
 
 void loop() {
@@ -638,10 +626,6 @@ digitalWrite(green_machine_state,LOW); //apaga green led machine state
 lcd.noBacklight(); //apaga luz de fundo do lcd
 
 digitalWrite(red_up,LOW);   //apaga red led do go up
-digitalWrite(green_up,LOW); //apaga green led do go up
-
-
-
 
 
 if(BTSerial.available()>0){ //se receber da app que e para ligar
@@ -654,8 +638,9 @@ if(BTSerial.available()>0){ //se receber da app que e para ligar
     lcd.print("Device conected");
     delay(300);
     lcd.clear();
+    delay(300);
     }
-    lcd.noBacklight();
+    lcd.backlight();
   }
   /*else if(received==DISCONECTED){
      switch_bluetooth_state();
@@ -670,11 +655,14 @@ if(BTSerial.available()>0){ //se receber da app que e para ligar
   }*/
 
   else if(received==ON){
-    switch_machine_state();
+    
     lcd.backlight();
-    lcd.print("POWER ON");
-    delay(500);
     lcd.clear();
+    lcd.print("POWER ON");
+    delay(1000);
+    lcd.clear();
+    switch_machine_state();
+    
   }
 }
 delay(50);
@@ -699,10 +687,11 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
   cont_disconected=0;
 
   if(received==OFF){
-    switch_machine_state();
+    
     lcd.print("POWER OFF");
     delay(500);
     lcd.clear();
+    switch_machine_state();
     
   }
   /*
@@ -782,7 +771,6 @@ else if(BLUETOOTH_MODE == CONECTED){
   }
 
   lcd.scrollDisplayRight();
-  
 }
 
 else{
@@ -793,15 +781,15 @@ if(cont_disconected==0){
   lcd.print("Conect device");
   cont_disconected++;
   }
-  else if(millis()-comeco>=10000){
+  else if(millis()-comeco>=15000){
     lcd.clear();
     lcd.print("Energy safe mode");
-    delay(500);
+    delay(1000);
     lcd.clear();
     switch_machine_state();
   }
   else{
-  lcd.scrollDisplayRight();
+  lcd.scrollDisplayLeft();
   }
 }
 
@@ -829,14 +817,12 @@ while(cont<wanted && cont!=-1){
 
 read=color_return(cont,wanted,color_wanted); //lê cor
   
- write_wanted_color_RGB(read,colors); //mostra a cor lida pelo sensor
-
   if(read==UNKNOWN){ // se a cor lida pelo sensor for unknown, ou seja, não houver pintarolas disponiveis no "depósito"
    
         while(read==UNKNOWN){
            cont_unknown++;
 
-          if(cont_unknown<2){
+          if(cont_unknown<4){
 
             lcd.clear();
             lcd.print("Erro");
@@ -859,18 +845,22 @@ read=color_return(cont,wanted,color_wanted); //lê cor
 
             //LCD_MODES(2000,cont,wanted,color_wanted);
           }
-
-          Servo_color.write(ang_descida_pintarola); //volta para a posição onde recebe pintarolas
-
+          
+          for(int i= ang_sensor;i<ang_descida_pintarola;i++){
+          Servo_color.write(i); //volta para a posição onde recebe pintarolas
+          LCD_MODES(20,cont,wanted,color_wanted);
+          }
           LCD_MODES(300,cont,wanted,color_wanted);
 
           for(int i=ang_descida_pintarola;i>ang_sensor;i--){ //vai verificar ao sensor
             Servo_color.write(i);
             LCD_MODES(30,cont,wanted,color_wanted);
           }
-
+          
+          LCD_MODES(300,cont,wanted,color_wanted);
           read=color_return(cont,wanted,color_wanted); //relê a cor 
-          LCD_MODES(50,cont,wanted,color_wanted);
+          Serial.println(read);
+          LCD_MODES(300,cont,wanted,color_wanted);
           
         }
         cont_unknown=0;
@@ -913,13 +903,13 @@ read=color_return(cont,wanted,color_wanted); //lê cor
   LCD_MODES(100,cont,wanted,color_wanted);
 
   if(cont_no_wanted==lim_no_wanted){  //se o nº de pintarolas no recipiente no_wanted chegar ao lim_max vai "despejar" no recipiente inicial
-    digitalWrite(green_up,LOW);   //apaga led verde do go up
+
     digitalWrite(red_up,HIGH);    //acende led red do go up
 
     cont_no_wanted=0;
     GO_UP(cont,wanted,color_wanted);
 
-    digitalWrite(green_up,HIGH); //acende led verde do go up
+
     digitalWrite(red_up,LOW);    //apaga led red do go up
 
   }
@@ -928,13 +918,13 @@ read=color_return(cont,wanted,color_wanted); //lê cor
 }
 
 if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
-    digitalWrite(green_up,LOW);   //apaga led verde do go up
+
     digitalWrite(red_up,HIGH);    //acende led red do go up
 
     cont_no_wanted=0;
     GO_UP(cont,wanted,color_wanted);
 
-    digitalWrite(green_up,HIGH); //acende led verde do go up
+ 
     digitalWrite(red_up,LOW);    //apaga led red do go up
   }
 if(cont == wanted){
@@ -944,9 +934,10 @@ lcd.print("Task Complete!!");
 delay(1000);
 LAST_LCD_MODE=-1;
 lcd.clear();
+switch_bluetooth_state();
 }
-switch_bluetooth_state(); //disconect device
+ //disconect device
 cont=-1; //recoloca contador de pintarolas que o utilizador quer a -1
-delay(50);
+delay(400);
 }
 }
