@@ -14,8 +14,8 @@ Servo Servo_down;  //servo motor que faz parte exclusivamente do go back to top,
 Servo Servo_up;  //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
 
 //bytes que o lcd vai escrever 
-char as[]={'Y','G','B','U','C','B'};
-int t=0;
+//char as[]={'Y','G','B','U','C','B'};
+//int t=0;
 byte char_0_esquerda[] = {
     B11111,
     B10000,
@@ -1048,7 +1048,7 @@ LCD_BARRA(last_cont1,wanted);
   //posição da leitura do sensor
 
   read=color_return(cont,wanted,color_wanted); //lê cor
-  read=as[t];
+  //read=as[t];
  // read='G';
   Serial.println(read);
   lcd.clear();
@@ -1203,7 +1203,7 @@ Servo_color.write(i);
   //LCD_MODES(300,cont,wanted,color_wanted);
   delay(300);
 }
-t++;
+//t++;
 }
 
 if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
