@@ -14,7 +14,8 @@ Servo Servo_down;  //servo motor que faz parte exclusivamente do go back to top,
 Servo Servo_up;  //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
 
 //bytes que o lcd vai escrever 
-
+char as[]={'B','G','U','Y','C','B'};
+int t=0;
 byte char_0_esquerda[] = {
     B11111,
     B10000,
@@ -145,7 +146,7 @@ int ang_patch_wanted = 124;
 int ang_patch_no_wanted = 154;
 
 int ang_default_up = 179;
-int ang_default_down = 11;
+int ang_default_down = 0;
 
 //define colors
 char YELLOW = 'Y';
@@ -154,15 +155,16 @@ char BROWN = 'C';
 char GREEN = 'G';
 char UNKNOWN = 'U';
 
-
+int last_color=1;
+int last_cont1=0;
 int cont=-1; // contador pintarolas wanted
-int wanted=1; //quantidade de pintarolas que o utilizador quer
-char color_wanted; //cor que o utilizador quer
+int wanted; //quantidade de pintarolas que o utilizador quer
+char color_wanted = 'B'; //cor que o utilizador quer
 int cont_no_wanted = 0; //contador de pintarolas no wanted
 int lim_no_wanted = 2; //limite de pintarolas no recipiente no wanted
 int cont_unknown=0; //contador que conta as pintarolas não reconhecidas que no caso acontecerá quando não houver pintaroras no "depósito" superior
 
-
+int comeco_c=0;
 int comeco=0;
 // LCD states
 
@@ -338,17 +340,16 @@ bool detect_press() {
 //função que muda state do LCD durante os processos
 
 void LCD_MODES(int time,int cont,int wanted,char color){
-
   if(!detect_press()){
       int start = millis();
   while(millis()-start<=time){
 
     if(detect_press()){
-        switch_lcd_mode();
-        lcd.clear();
-      }
+      switch_lcd_mode();
+      lcd.clear();
+    }
       
-    else if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE ){
+    if(CURRENT_LCD_MODE ==  BARRA_LCD_MODE ){
       if(last_cont!=cont || LAST_LCD_MODE!=OTHER_LCD_MODE || last_color!=color){
         last_cont=cont;
         last_color=color;
@@ -455,35 +456,40 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   digitalWrite(S2,HIGH);
   digitalWrite(S3,HIGH);
   green_tab[i]=pulseIn(sensor_output,LOW);
-  LCD_MODES(100,cont,wanted,color_wanted);
-
+  //LCD_MODES(100,cont,wanted,color_wanted);
+  delay(100);
   }
 
   red=media(red_tab); //variavel que guarda valor media red lido pelo sensor
   blue=media(blue_tab); //variavel que guarda valor media blue lido pelo sensor
   green=media(green_tab); //variavel que guarda valor media green lido pelo sensor
+  Serial.print("REd->  ");
+  Serial.print(red);
+  Serial.print("     ");
+  Serial.print("blue->  ");
+  Serial.print(blue);
+  Serial.print("     ");
+  Serial.print("green->  ");
+  Serial.print(green);
+  Serial.print("     ");
+  Serial.println();
 
-  //Serial.print("green->  ");
-  //Serial.print(green);
-  //Serial.print("     ");
-  //Serial.println();
-
-   //detect azul
-   if(red>=79 && red<=84 && blue>=73 && blue <=77 && green>=82 && green<=89){
+ //detect azul
+  if(red>=84 && red<=89 && blue>=76 && blue <=80 && green>=88 && green<=92){
     return BLUE;
   }
   //detect verde
-  else if(red>=77 && red<=82 && blue>=77 && blue <=81 && green>=81 && green<=86){
+  else if(red>=82 && red<=86 && blue>=82 && blue <=84 && green>=87 && green<=91){
     return GREEN;
   }
 
   //detect castanho
-  else if(red>=78 && red<=84 && blue>=78 && blue <=84 && green>=87 && green<=91){
+  else if(red>=83 && red<=86 && blue>=81 && blue <=84 && green>=92 && green<=94){
     return BROWN;
   }
 
   //detect amarelo
-  else if(red>=75 && red<=77 && blue>=75 && blue <=79 && green>=81 && green<=84 ){
+  else if(red>=77 && red<=82 && blue>=78 && blue <=84 && green>=83 && green<=90){
     return YELLOW;
   }
 
@@ -496,59 +502,83 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
 //função go up, responsavel por levar as pintarolas no wanted devolta para o deposito inicial
 
 void GO_UP(int cont,int wanted,char color_wanted){
-  Servo_down.write(11);
+  Servo_down.write(0);
   Servo_up.write(179);
-
+  lcd.print("Going up...");
   for(int i=179;i>140;i--){
+    delay(20);
     Servo_up.write(i);
-    LCD_MODES(10,cont,wanted,color_wanted);
+    
+    //LCD_MODES(10,cont,wanted,color_wanted);
   }
 
-  for (int i = 11; i < 50; i++) {
+  for (int i = 0; i < 50; i++) {
+    delay(20);
     Servo_down.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
+   // LCD_MODES(30,cont,wanted,color_wanted);
   }
 
-  LCD_MODES(1000,cont,wanted,color_wanted);
+  //LCD_MODES(1000,cont,wanted,color_wanted);
+  delay(1000);
 
   for (int i = 140; i > 100; i--) {
+    delay(20);
     Servo_up.write(i);
-    LCD_MODES(10,cont,wanted,color_wanted);
+    
+   // LCD_MODES(10,cont,wanted,color_wanted);
   }
-  LCD_MODES(1500,cont,wanted,color_wanted);
+ // LCD_MODES(1500,cont,wanted,color_wanted);
+ delay(1500);
 
-  for (int i = 50; i < 97; i++) {
+  for (int i = 50; i < 87; i++) {
+    delay(30);
     Servo_down.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
+   // LCD_MODES(30,cont,wanted,color_wanted);
   }
-
-  LCD_MODES(500,cont,wanted,color_wanted);
+  delay(500);
+  //LCD_MODES(500,cont,wanted,color_wanted);
 
   for (int i = 100; i < 175; i++) {
+    delay(20);
     Servo_up.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
+   // LCD_MODES(30,cont,wanted,color_wanted);
   }
 
-  LCD_MODES(2000,cont,wanted,color_wanted); //recoloca as pintarolas
+  //LCD_MODES(2000,cont,wanted,color_wanted);
+   //recoloca as pintarolas
+  delay(3000);
 
+  lcd.clear();
+  lcd.print("Going down...");
   for (int i = 160; i > 140; i--) {
+    delay(20);
     Servo_up.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
+    //LCD_MODES(30,cont,wanted,color_wanted);
   }
 
-  LCD_MODES(2000,cont,wanted,color_wanted);
+  //LCD_MODES(2000,cont,wanted,color_wanted);
+  delay(2000);
 
-  for (int i = 97; i > 11; i--) {
+  for (int i = 87; i > 0; i--) {
+    delay(20);
     Servo_down.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
+    //LCD_MODES(30,cont,wanted,color_wanted);
   }
 
   for(int i=140;i<179;i++){
+    delay(20);
     Servo_up.write(i);
-    LCD_MODES(10,cont,wanted,color_wanted);
+    
+   // LCD_MODES(10,cont,wanted,color_wanted);
   }
 
-  LCD_MODES(1000,cont,wanted,color_wanted);
+ // LCD_MODES(1000,cont,wanted,color_wanted);
+ delay(1000);
 }
 
 //função responsavel pela troca de power states da maquina
@@ -715,65 +745,159 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       color_wanted=BLUE;
     }
     else if (received==YELLOW){
+      last_color=0;
       color_wanted=YELLOW;
+      lcd.clear();
+      lcd.print("Sorting...");
+      lcd.setCursor(5,1);
+      lcd.print("Yellow");
+      delay(700);
+      lcd.clear();
     }
     else if (received==BROWN){
+      last_color=0;
       color_wanted=BROWN;
+       lcd.clear();
+      lcd.print("Sorting...");
+      lcd.setCursor(5,1);
+      lcd.print("Brown");
+      delay(700);
+      lcd.clear();
     }
     else if (received==GREEN){
+      last_color=0;
       color_wanted=GREEN;
+       lcd.clear();
+      lcd.print("Sorting...");
+      lcd.setCursor(5,1);
+      lcd.print("Green");
+      delay(700);
+      lcd.clear();
     }
     else if (received=='H'){
+      if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=1;
       cont=0;
     }
     else if (received=='Z'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=2;
       cont=0;
     }
     else if (received=='K'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=3;
       cont=0;
     }
     else if (received=='W'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=4;
       cont=0;
     }
     else if (received=='X'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=5;
       cont=0;
     }
     else if (received=='T'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=6;
       cont=0;
     }
     else if (received=='V'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=7;
       cont=0;
     }
     else if (received=='J'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=8;
       cont=0;
     }
     else if (received=='I'){
+       if(last_color==1){
+        lcd.clear();
+        lcd.print("Last sort");
+        lcd.setCursor(5,1);
+        lcd.print(color_wanted);
+        delay(1000);
+        lcd.clear();
+      }
       wanted=9;
       cont=0;
     }
   }
 }
 
-else if(BLUETOOTH_MODE == CONECTED){
+else if(BLUETOOTH_MODE == CONECTED){  //se esta conectado
   if(cont_conected==0){
     cont_disconected=0;
   lcd.clear();
   lcd.print("Waiting data!");
   cont_conected++;
   }
-
+  cont_disconected=0;
   lcd.scrollDisplayRight();
 }
 
-else{
+else{     //se nao esta conectado
+
 if(cont_disconected==0){
   comeco=millis(); //começa a contar
   cont_conected=0;
@@ -782,6 +906,7 @@ if(cont_disconected==0){
   cont_disconected++;
   }
   else if(millis()-comeco>=15000){
+    Servo_patch.write(ang_patch_no_wanted);
     lcd.clear();
     lcd.print("Energy safe mode");
     delay(1000);
@@ -796,113 +921,167 @@ if(cont_disconected==0){
   //esperar pela interação dda aplicação e depois fazer cont=0
     
 while(cont<wanted && cont!=-1){
-
-  //print no rgb led da cor requerida
-  
-
   //servo na posição inicial onde recebe as pintarolas 
-  LCD_MODES(300,cont,wanted,color_wanted);
+
+LCD_BARRA(last_cont1,wanted);
+ 
+ delay(300);
   
   for(int i=ang_descida_pintarola;i>ang_sensor;i--){
+    delay(20);
     Servo_color.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
   }
 
-  LCD_MODES(100,cont,wanted,color_wanted);
-  
+  //LCD_MODES(100,cont,wanted,color_wanted);
+  delay(200);
 
     //.....................PATCH SELECTION................
     
   //posição da leitura do sensor
 
-read=color_return(cont,wanted,color_wanted); //lê cor
-  
+  read=color_return(cont,wanted,color_wanted); //lê cor
+  read=as[t];
+ // read='G';
+  Serial.println(read);
+  lcd.clear();
+  delay(500);
+  if(read=='U'){
+  lcd.print("Detected");
+  lcd.setCursor(6,1);
+  lcd.print("Unknown");
+}
+  else if(read=='G'){
+  lcd.print("Detected");
+  lcd.setCursor(6,1);
+  lcd.print("Green");
+}
+ else if(read=='B'){
+  lcd.print("Detected");
+  lcd.setCursor(6,1);
+  lcd.print("Blue");
+}
+ else if(read=='Y'){
+  lcd.print("Detected");
+  lcd.setCursor(6,1);
+  lcd.print("Yellow");
+}
+ else if(read=='C'){
+  lcd.print("Detected");
+  lcd.setCursor(6,1);
+  lcd.print("Brown");
+}
+  delay(500);
+lcd.clear();
+LCD_BARRA(last_cont1,wanted);
+  //if(cont==0){
+    //read='B';
+    //}
+
+
+  /*else {
+    read='Y';
+  }*/
+  //LCD_MODES(50,cont,wanted,color_wanted);
+  delay(150);
+
   if(read==UNKNOWN){ // se a cor lida pelo sensor for unknown, ou seja, não houver pintarolas disponiveis no "depósito"
-   
-        while(read==UNKNOWN){
-           cont_unknown++;
+   cont_unknown++;
+    //while(read==UNKNOWN){
 
-          if(cont_unknown<4){
+    //print no lcd que nao ha pintarolas no deposito inicial
+    if(cont_unknown>=5){
+    lcd.clear();
+    lcd.print("Nao    ha ");
+    lcd.setCursor(3,1);
+    lcd.print("pintarola!");
+    delay(2000);
+    lcd.clear();
+    }
+    //LAST_LCD_MODE=-1;
+    else{
+    lcd.clear();
+    lcd.print("Erro ");
+    lcd.setCursor(5,1);
+    lcd.print("leitura!");
+    delay(1000);
+    lcd.clear();
+    }
+    //LCD_MODES(2000,cont,wanted,color_wanted);
 
-            lcd.clear();
-            lcd.print("Erro");
-            delay(1000);
-            lcd.clear();
-            LAST_LCD_MODE=-1;
 
-            //LCD_MODES(1000,cont,wanted,color_wanted);
-          }
-          else{
+    for(int i= ang_sensor;i<ang_descida_pintarola;i++){
+      delay(30);
+      Servo_color.write(i); //volta para a posição onde recebe pintarolas
 
-            //print no lcd que nao ha pintarolas no deposito inicial
-            lcd.clear();
-            lcd.print("Nao    ha ");
-            lcd.setCursor(3,1);
-            lcd.print("pintarolas!");
-            delay(1000);
-            lcd.clear();
-            LAST_LCD_MODE=-1;
+      //LCD_MODES(20,cont,wanted,color_wanted);
+    }
 
-            //LCD_MODES(2000,cont,wanted,color_wanted);
-          }
-          
-          for(int i= ang_sensor;i<ang_descida_pintarola;i++){
-          Servo_color.write(i); //volta para a posição onde recebe pintarolas
-          LCD_MODES(20,cont,wanted,color_wanted);
-          }
-          LCD_MODES(300,cont,wanted,color_wanted);
+    delay(200);
+    //LCD_MODES(400,cont,wanted,color_wanted);
 
-          for(int i=ang_descida_pintarola;i>ang_sensor;i--){ //vai verificar ao sensor
-            Servo_color.write(i);
-            LCD_MODES(30,cont,wanted,color_wanted);
-          }
-          
-          LCD_MODES(300,cont,wanted,color_wanted);
-          read=color_return(cont,wanted,color_wanted); //relê a cor 
-          Serial.println(read);
-          LCD_MODES(300,cont,wanted,color_wanted);
-          
-        }
-        cont_unknown=0;
-        LCD_MODES(200,cont,wanted,color_wanted);
-      
-  }
+    /*for(int i=ang_descida_pintarola;i>ang_sensor;i--){ //vai verificar ao sensor
+      delay(20);
+Servo_color.write(i);
+      LCD_MODES(30,cont,wanted,color_wanted);
+    }
+    
+    LCD_MODES(400,cont,wanted,color_wanted);
+    read=color_return(cont,wanted,color_wanted); //relê a cor 
+    Serial.println(read);
+    LCD_MODES(400,cont,wanted,color_wanted);*/
+    
+  //}
+  //cont_unknown=0;
+  //LCD_MODES(200,cont,wanted,color_wanted);
 
-  else if(color_wanted==read){ //se a cor lida for a pretendida pelo utilizador
-    if(LAST_POS==NO_WANTED){
+  } else{
+    cont_unknown=0;
+   if(color_wanted==read){ //se a cor lida for a pretendida pelo utilizador
       Servo_patch.write(ang_patch_wanted);
-    }
-    LAST_POS=WANTED;
-    cont++;
-  }
-
-
-  else{  // se a cor lida não for a requerida pelo utilizador
-    if(LAST_POS==WANTED){
+      cont++;
+      if(cont!=last_cont1){
+        last_cont1=cont;
+        lcd.clear();
+        LCD_BARRA(last_cont1,wanted);
+      }
+    } else {  // se a cor lida não for a requerida pelo utilizador
       Servo_patch.write(ang_patch_no_wanted);
+      cont_no_wanted++;
     }
-    LAST_POS=NO_WANTED;
-    cont_no_wanted++;
-  }
-
-  LCD_MODES(500,cont,wanted,color_wanted);
+    
+    delay(500);
+    //LCD_MODES(500,cont,wanted,color_wanted);
 
   //posição no buraco onde a pintarola cai para o patch
   for(int i=ang_sensor;i>ang_patch;i--){
+    delay(20);
     Servo_color.write(i);
-    LCD_MODES(30,cont,wanted,color_wanted);
+    
+    //LCD_MODES(30,cont,wanted,color_wanted);
   }
-  LCD_MODES(500,cont,wanted,color_wanted);  //aqui a pintarola já cai no recipiente certo
+  delay(300);
+  //LCD_MODES(500,cont,wanted,color_wanted);  //aqui a pintarola já cai no recipiente certo
    
    //servo volta para onde recebe as pintarolas ja sem pintarolas
    for(int i=ang_patch;i<ang_descida_pintarola;i++){
+    delay(30);
     Servo_color.write(i);
-    LCD_MODES(10,cont,wanted,color_wanted);
+    
+    //LCD_MODES(10,cont,wanted,color_wanted);
   }
-
-  LCD_MODES(100,cont,wanted,color_wanted);
+  delay(100);
+  //LCD_MODES(100,cont,wanted,color_wanted);
 
   if(cont_no_wanted==lim_no_wanted){  //se o nº de pintarolas no recipiente no_wanted chegar ao lim_max vai "despejar" no recipiente inicial
+    lcd.clear();
+    for(int i=0;i<6;i++){
+      lcd.print("Full");
+      delay(500);
+      lcd.clear();
+      delay(500);
+    }
+    
 
     digitalWrite(red_up,HIGH);    //acende led red do go up
 
@@ -911,20 +1090,30 @@ read=color_return(cont,wanted,color_wanted); //lê cor
 
 
     digitalWrite(red_up,LOW);    //apaga led red do go up
-
+    lcd.clear();
   }
 
-  LCD_MODES(300,cont,wanted,color_wanted);
+  //LCD_MODES(300,cont,wanted,color_wanted);
+  delay(300);
+}
+t++;
 }
 
 if(cont_no_wanted>0){ //se houver pintarolas no recipiente do no_wanted vai "despejar" no recipiente inicial
-
+    lcd.clear();
+     for(int i=0;i<6;i++){
+      lcd.print("Full");
+      delay(500);
+      lcd.clear();
+      delay(500);
+    }
     digitalWrite(red_up,HIGH);    //acende led red do go up
 
     cont_no_wanted=0;
     GO_UP(cont,wanted,color_wanted);
-
- 
+    lcd.clear();
+    cont_conected=0;
+    lcd.clear();
     digitalWrite(red_up,LOW);    //apaga led red do go up
   }
 if(cont == wanted){
@@ -932,10 +1121,12 @@ if(cont == wanted){
 lcd.clear();
 lcd.print("Task Complete!!");
 delay(1000);
-LAST_LCD_MODE=-1;
+//LAST_LCD_MODE=-1;
 lcd.clear();
+last_color=1;
 switch_bluetooth_state();
 }
+last_cont1=0;
  //disconect device
 cont=-1; //recoloca contador de pintarolas que o utilizador quer a -1
 delay(400);
