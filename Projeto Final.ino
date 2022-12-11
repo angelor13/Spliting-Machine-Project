@@ -14,7 +14,7 @@ Servo Servo_down;  //servo motor que faz parte exclusivamente do go back to top,
 Servo Servo_up;  //servo motor que faz parte exclusivamente do go back to top, que roda o pote e "despeja"
 
 //bytes que o lcd vai escrever 
-char as[]={'B','G','U','Y','C','B'};
+char as[]={'Y','G','B','U','C','B'};
 int t=0;
 byte char_0_esquerda[] = {
     B11111,
@@ -155,7 +155,7 @@ char BROWN = 'C';
 char GREEN = 'G';
 char UNKNOWN = 'U';
 
-int last_color=1;
+int last_color1=1;
 int last_cont1=0;
 int cont=-1; // contador pintarolas wanted
 int wanted; //quantidade de pintarolas que o utilizador quer
@@ -475,28 +475,29 @@ char color_return(int cont,int wanted,char color_wanted){  //função que retorn
   Serial.println();
 
  //detect azul
-  if(red>=84 && red<=89 && blue>=76 && blue <=80 && green>=88 && green<=92){
-    return BLUE;
+  if(red>=75 && red<=78 && blue>=76 && blue <=78 && green>=81 && green<=84){
+    return YELLOW;
   }
   //detect verde
-  else if(red>=82 && red<=86 && blue>=82 && blue <=84 && green>=87 && green<=91){
+  else if(red>=78 && red<=80 && blue>=75 && blue <=77 && green>=82 && green<=84){
     return GREEN;
   }
 
   //detect castanho
-  else if(red>=83 && red<=86 && blue>=81 && blue <=84 && green>=92 && green<=94){
+  else if(red>=78 && red<=80 && blue>=76 && blue <=78 && green>=85 && green<=87){
     return BROWN;
   }
 
   //detect amarelo
-  else if(red>=77 && red<=82 && blue>=78 && blue <=84 && green>=83 && green<=90){
-    return YELLOW;
+  else if(red>=79 && red<=81 && blue>=72 && blue <=74 && green>=83 && green<=85){
+    return BLUE;
   }
 
   //detect cor desconhecida (quando não há nada no seletor)
   else{
     return UNKNOWN;
   }
+
 }
 
 //função go up, responsavel por levar as pintarolas no wanted devolta para o deposito inicial
@@ -742,10 +743,17 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
   else {
 
     if(received == BLUE){
+       last_color1=0;
       color_wanted=BLUE;
+      lcd.clear();
+      lcd.print("Sorting...");
+      lcd.setCursor(5,1);
+      lcd.print("Blue");
+      delay(700);
+      lcd.clear();
     }
     else if (received==YELLOW){
-      last_color=0;
+      last_color1=0;
       color_wanted=YELLOW;
       lcd.clear();
       lcd.print("Sorting...");
@@ -755,7 +763,7 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       lcd.clear();
     }
     else if (received==BROWN){
-      last_color=0;
+      last_color1=0;
       color_wanted=BROWN;
        lcd.clear();
       lcd.print("Sorting...");
@@ -765,7 +773,7 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       lcd.clear();
     }
     else if (received==GREEN){
-      last_color=0;
+      last_color1=0;
       color_wanted=GREEN;
        lcd.clear();
       lcd.print("Sorting...");
@@ -775,11 +783,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       lcd.clear();
     }
     else if (received=='H'){
-      if(last_color==1){
+      if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+       if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -787,11 +806,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='Z'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -799,11 +829,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='K'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -811,11 +852,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='W'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -823,11 +875,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='X'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -835,11 +898,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='T'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -847,11 +921,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='V'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -859,11 +944,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='J'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -871,11 +967,22 @@ if(BTSerial.available()>0){ //se receber alguma coisa da aplicação
       cont=0;
     }
     else if (received=='I'){
-       if(last_color==1){
+       if(last_color1==1){
         lcd.clear();
         lcd.print("Last sort");
         lcd.setCursor(5,1);
-        lcd.print(color_wanted);
+        if(color_wanted=='B'){
+         lcd.print("Blue");
+       }
+        else if(color_wanted=='C'){
+         lcd.print("Brown");
+       }
+       else if(color_wanted=='Y'){
+         lcd.print("Yellow");
+       }
+        else if(color_wanted=='G'){
+         lcd.print("Green");
+       }
         delay(1000);
         lcd.clear();
       }
@@ -1123,7 +1230,7 @@ lcd.print("Task Complete!!");
 delay(1000);
 //LAST_LCD_MODE=-1;
 lcd.clear();
-last_color=1;
+last_color1=1;
 switch_bluetooth_state();
 }
 last_cont1=0;
